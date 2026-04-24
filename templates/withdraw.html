@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Withdraw — ZURI{% endblock %}
+{% block content %}
+<div style="margin-bottom:20px;">
+  <h1 class="page-title">Withdraw Crypto</h1>
+  <p class="page-sub">Send crypto to an external wallet address</p>
+</div>
+
+<div id="withdrawForm">
+  <!-- Balance selector -->
+  <div class="field-group">
+    <label class="field-label">Select Asset</label>
+    <div class="select-wrap">
+      <select id="wCoin" class="field-select" onchange="onWCoinChange(this.value)">
+        <option value="">— Choose coin —</option>
+        {% for w in wallets %}
+        {% set m = crypto_meta.get(w.symbol, {'icon':'◈','name':w.symbol}) %}
+        <option value="{{ w.symbol }}" data-bal="{{ w.balance }}" data-price="{{ prices.get(w.symbol,1) }}">
+          {{ m.icon }} {{ w.symbol }} — Balance: {{ "%.6f"|format(w.balance) }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <!-- Available balance pill -->
+  <div id="balPill" style="display:none;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;margin-bottom:18px;">
+    <span style="font-size:.82rem;color:var(--text-2);">Available</span>
+    <span style="font-family:'DM Mono',monospace;font-size:.88rem;font-weight:700;color:var(--green);" id="availBal">—</span>
+  </div>
+
+  <div class="field-group">
+    <div class="field-label-row" style="margin-bottom:7px;">
+      <label class="field-label" style="margin-bottom:0;">Amount</label>
+      <button type="button" onclick="setMax()" style="font-size:.72rem;color:#818cf8;background:none;border:none;cursor:pointer;font-weight:700;">MAX</button>
+    </div>
+    <div class="field-wrap">
+      <input type="number" id="wAmt" class="field-input" placeholder="0.00000000" min="0" step="any" oninput="updateWEstimate()">
+      <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text-2);font-size:.82rem;font-weight:700;" id="wSuffix">—</span>
+    </div>
+    <span class="field-hint">≈ <span id="wUsdEst">$0.00</span> USD</span>
+  </div>
+
+  <div class="field-group">
+    <label class="field-label">Network</label>
+    <div class="select-wrap">
+      <select id="wNetwork" class="field-select">
+        <option value="">— Select network —</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label class="field-label">Recipient Wallet Address</label>
+    <div class="field-wrap">
+      <input type="text" id="wAddress" class="field-input" placeholder="Paste wallet address here..." autocomplete="off">
+    </div>
+    <span class="field-hint">Double-check the address — crypto transfers are irreversible</span>
+  </div>
+
+  <!-- Summary -->
+  <div id="wSummary" style="display:none;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:18px;">
+    <p style="font-size:.72rem;color:var(--text-2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;font-weight:700;">Transaction Summary</p>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div style="display:flex;justify-content:space-between;font-size:.83rem;"><span style="color:var(--text-2);">You send</span><strong id="sumSend">—</strong></div>
+      <div style="display:flex;justify-content:space-between;font-size:.83rem;"><span style="color:var(--text-2);">Network fee</span><strong style="color:var(--yellow);">~0.001 (simulated)</strong></div>
+      <div style="display:flex;justify-content:space-between;font-size:.83rem;"><span style="color:var(--text-2);">USD value</span><strong id="sumUsd">—</strong></div>
+      <div style="display:flex;justify-content:space-between;font-size:.83rem;"><span style="color:var(--text-2);">Status</span><span class="txn-status status-processing">Processing</span></div>
+    </div>
+  </div>
+
+  <button type="button" class="btn btn-primary btn-full" id="wBtn" disabled onclick="submitWithdraw()">
+    ⬆ Confirm Withdrawal
+  </button>
+  <p style="text-align:center;font-size:.72rem;color:var(--text-3);margin-top:10px;">Simulation only — no real crypto will be sent</p>
+</div>
+
+<!-- Success state -->
+<div id="wSuccess" style="display:none;text-align:center;padding:20px 0;">
+  <div style="font-size:3.5rem;margin-bottom:16px;">⏳</div>
+  <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:8px;">Withdrawal Submitted</h3>
+  <p style="color:var(--text-2);font-size:.88rem;margin-bottom:20px;">Your withdrawal is being <strong>processed</strong>. It will be reflected shortly.</p>
+  <div id="wSuccessDetails" style="background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:20px;text-align:left;"></div>
+  <a href="{{ url_for('dashboard') }}" class="btn btn-primary">← Back to Dashboard</a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const PRICES = {{ prices|tojson }};
+const NETS = { BTC:['BTC Mainnet'], ETH:['ERC-20','Arbitrum','Optimism'], USDT:['TRC-20','ERC-20','BEP-20'], BNB:['BEP-20'], SOL:['Solana'], XRP:['XRPL'], DOGE:['DOGE Mainnet'], TRX:['TRC-20'], ADA:['Cardano'], MATIC:['Polygon','ERC-20'] };
+let curBal=0, curPrice=1, curSym='';
+
+function onWCoinChange(sym) {
+  curSym = sym;
+  const opt = document.querySelector(`#wCoin option[value="${sym}"]`);
+  curBal   = opt ? parseFloat(opt.dataset.bal) : 0;
+  curPrice = opt ? parseFloat(opt.dataset.price) : 1;
+  document.getElementById('balPill').style.display = sym ? 'flex' : 'none';
+  document.getElementById('availBal').textContent = curBal.toFixed(6)+' '+sym;
+  document.getElementById('wSuffix').textContent = sym || '—';
+  // populate networks
+  const ns = document.getElementById('wNetwork');
+  ns.innerHTML = '<option value="">— Select network —</option>';
+  (NETS[sym]||[sym+' Network']).forEach(n => { const o=document.createElement('option'); o.value=n; o.textContent=n; ns.appendChild(o); });
+  updateWEstimate();
+}
+
+function setMax() {
+  document.getElementById('wAmt').value = curBal.toFixed(8);
+  updateWEstimate();
+  checkReady();
+}
+
+function updateWEstimate() {
+  const amt = parseFloat(document.getElementById('wAmt').value)||0;
+  document.getElementById('wUsdEst').textContent = '$'+(amt*curPrice).toFixed(2);
+  const addr = document.getElementById('wAddress').value.trim();
+  if(amt>0 && curSym) {
+    document.getElementById('sumSend').textContent = amt.toFixed(8)+' '+curSym;
+    document.getElementById('sumUsd').textContent  = '$'+(amt*curPrice).toFixed(2);
+    document.getElementById('wSummary').style.display = 'block';
+  }
+  checkReady();
+}
+
+document.getElementById('wAddress').addEventListener('input', ()=>{ updateWEstimate(); checkReady(); });
+document.getElementById('wNetwork').addEventListener('change', checkReady);
+
+function checkReady() {
+  const amt  = parseFloat(document.getElementById('wAmt').value)||0;
+  const addr = document.getElementById('wAddress').value.trim();
+  const net  = document.getElementById('wNetwork').value;
+  document.getElementById('wBtn').disabled = !(amt>0 && amt<=curBal && addr.length>10 && net && curSym);
+}
+
+function submitWithdraw() {
+  const amt  = document.getElementById('wAmt').value;
+  const addr = document.getElementById('wAddress').value.trim();
+  const net  = document.getElementById('wNetwork').value;
+  const fd   = new FormData();
+  fd.append('_csrf', document.querySelector('meta[name=csrf-token]').content);
+  fd.append('currency', curSym);
+  fd.append('amount', amt);
+  fd.append('to_address', addr);
+  fd.append('network', net);
+  fetch('{{ url_for("withdraw") }}', {method:'POST',body:fd})
+    .then(r=>r.json()).then(data=>{
+      if(data.success){
+        document.getElementById('withdrawForm').style.display='none';
+        document.getElementById('wSuccess').style.display='block';
+        document.getElementById('wSuccessDetails').innerHTML = `
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:.82rem;"><span style="color:var(--text-2)">Amount</span><strong>${parseFloat(amt).toFixed(8)} ${curSym}</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:.82rem;"><span style="color:var(--text-2)">Network</span><strong>${net}</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:.82rem;"><span style="color:var(--text-2)">Address</span><strong style="font-size:.72rem;font-family:'DM Mono',monospace;word-break:break-all;">${addr}</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.82rem;"><span style="color:var(--text-2)">Status</span><span class="txn-status status-processing">Processing</span></div>
+        `;
+      } else { showToast(data.error||'Withdrawal failed.','error'); }
+    });
+}
+</script>
+{% endblock %}

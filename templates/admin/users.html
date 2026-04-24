@@ -1,0 +1,166 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Users — ZURI Admin{% endblock %}
+{% block page_title %}Users{% endblock %}
+{% block content %}
+
+<div class="admin-page-title">User Management</div>
+<p class="admin-page-sub">{{ users|length }} registered accounts</p>
+
+<div class="admin-section">
+  {% if users %}
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr><th>User</th><th>Phone</th><th>Joined</th><th>USD Balance</th><th>Txns</th><th>Plans</th><th>Role</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr id="urow-{{ u.id }}">
+          <td>
+            <div class="admin-user-cell">
+              <div class="mini-avatar {% if u.is_admin %}mini-avatar-admin{% endif %}" style="background:{{ u.avatar_color }}">{{ u.name[0].upper() }}</div>
+              <div><div class="cell-name">{{ u.name }}</div><div class="cell-email">{{ u.email }}</div></div>
+            </div>
+          </td>
+          <td class="mono text-muted" style="font-size:.75rem;">{{ u.phone_country }}{{ u.phone or '—' }}</td>
+          <td class="mono text-muted" style="font-size:.75rem;">{{ u.created_at.strftime('%b %d, %Y') }}</td>
+          <td class="mono"><span id="ubal-{{ u.id }}">${{ "%.2f"|format(u.total_usd_balance) }}</span></td>
+          <td class="text-center">{{ u.transactions|length }}</td>
+          <td class="text-center">{{ u.active_plans|length }}</td>
+          <td><span class="role-badge {{ 'role-admin' if u.is_admin else 'role-user' }}">{{ 'Admin' if u.is_admin else 'User' }}</span></td>
+          <td>
+            <span class="txn-status {{ 'status-completed' if u.is_active else 'status-failed' }}" id="ustatus-{{ u.id }}">
+              {{ 'Active' if u.is_active else 'Suspended' }}
+            </span>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="action-btn-sm" onclick="openAdjust('{{ u.id }}','{{ u.name }}')" title="Adjust balance">💰</button>
+              {% if not u.is_admin %}
+              <button class="action-btn-sm" onclick="toggleUser('{{ u.id }}')" id="utoggle-{{ u.id }}" title="Toggle suspend">{{ '🔓' if u.is_active else '🔒' }}</button>
+              <button class="action-btn-sm" onclick="resetUser('{{ u.id }}','{{ u.name }}')" title="Reset wallet" style="color:var(--red);">🗑</button>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="admin-empty">No users registered yet.</div>
+  {% endif %}
+</div>
+
+<!-- Adjust Balance Modal -->
+<div class="modal-overlay" id="adjModal" style="display:none;">
+  <div class="modal-card" style="max-width:420px;margin:auto;border-radius:16px;">
+    <div class="modal-title">Adjust Balance</div>
+    <p class="modal-sub" id="adjSubtitle" style="color:var(--text-2);margin-bottom:20px;font-size:.85rem;"></p>
+    <div class="field-group">
+      <label class="field-label">Cryptocurrency</label>
+      <div class="select-wrap">
+        <select id="adjCoin" class="field-select">
+          <option value="USDT">USDT</option><option value="BTC">BTC</option>
+          <option value="ETH">ETH</option><option value="BNB">BNB</option>
+          <option value="SOL">SOL</option><option value="XRP">XRP</option>
+          <option value="DOGE">DOGE</option><option value="TRX">TRX</option>
+          <option value="ADA">ADA</option><option value="MATIC">MATIC</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Amount</label>
+      <input type="number" id="adjAmt" class="field-input" placeholder="0.00000000" min="0" step="any">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Action</label>
+      <div style="display:flex;gap:10px;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer;flex:1;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:10px;">
+          <input type="radio" name="adjAction" value="add" checked style="accent-color:#6366f1;"> ➕ Add funds
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer;flex:1;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:10px;">
+          <input type="radio" name="adjAction" value="deduct" style="accent-color:#ef4444;"> ➖ Deduct
+        </label>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="admin-btn-secondary" style="flex:1;" onclick="closeAdj()">Cancel</button>
+      <button class="admin-btn-primary"   style="flex:1;" onclick="submitAdj()">Apply</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CSRF = document.querySelector('meta[name=csrf-token]').content;
+let adjUid = null;
+
+function openAdjust(uid, name) {
+  adjUid = uid;
+  document.getElementById('adjSubtitle').textContent = 'Adjusting wallet for: ' + name;
+  document.getElementById('adjAmt').value = '';
+  document.getElementById('adjModal').style.display = 'flex';
+  document.querySelector('input[name=adjAction][value=add]').checked = true;
+}
+function closeAdj() { document.getElementById('adjModal').style.display = 'none'; }
+
+function submitAdj() {
+  const amt    = document.getElementById('adjAmt').value;
+  const coin   = document.getElementById('adjCoin').value;
+  const action = document.querySelector('input[name=adjAction]:checked').value;
+  if (!amt || parseFloat(amt) <= 0) { alert('Enter a valid amount.'); return; }
+  const fd = new FormData();
+  fd.append('_csrf', CSRF); fd.append('amount', amt);
+  fd.append('currency', coin); fd.append('action', action);
+  fetch(`/admin/users/${adjUid}/adjust`, { method: 'POST', body: fd })
+    .then(r => r.json()).then(d => {
+      if (d.success) {
+        closeAdj();
+        showToast('Balance updated!', 'success');
+        // update balance cell is approximate for USD — just refresh
+        setTimeout(() => location.reload(), 1000);
+      } else { alert(d.error); }
+    });
+}
+
+function toggleUser(uid) {
+  const fd = new FormData(); fd.append('_csrf', CSRF);
+  fetch(`/admin/users/${uid}/toggle`, { method: 'POST', body: fd })
+    .then(r => r.json()).then(d => {
+      if (d.success) {
+        const badge = document.getElementById('ustatus-' + uid);
+        const btn   = document.getElementById('utoggle-' + uid);
+        badge.textContent  = d.is_active ? 'Active' : 'Suspended';
+        badge.className    = 'txn-status ' + (d.is_active ? 'status-completed' : 'status-failed');
+        btn.textContent    = d.is_active ? '🔓' : '🔒';
+        showToast(d.is_active ? 'User activated.' : 'User suspended.', 'success');
+      } else { alert(d.error); }
+    });
+}
+
+function resetUser(uid, name) {
+  if (!confirm(`Reset wallet for ${name}? This clears all balance, transactions and plans.`)) return;
+  const fd = new FormData(); fd.append('_csrf', CSRF);
+  fetch(`/admin/users/${uid}/reset`, { method: 'POST', body: fd })
+    .then(r => r.json()).then(d => {
+      if (d.success) {
+        document.getElementById('ubal-' + uid).textContent = '$0.00';
+        showToast(name + "'s wallet reset.", 'success');
+      } else { alert(d.error); }
+    });
+}
+
+function showToast(msg, type) {
+  const t = document.createElement('div');
+  t.className = `flash flash-${type}`;
+  t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;min-width:220px;';
+  t.innerHTML = `<span>${msg}</span><button onclick="this.parentElement.remove()">×</button>`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+document.getElementById('adjModal').addEventListener('click', e => { if (e.target.id === 'adjModal') closeAdj(); });
+</script>
+{% endblock %}

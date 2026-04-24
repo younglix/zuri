@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — ZURI{% endblock %}
+
+{% block content %}
+<!-- Balance hero -->
+<div class="balance-hero">
+  <p class="balance-hero-label">Total Portfolio Value</p>
+  <h2 class="balance-hero-amount" id="totalBalance">
+    ${{ "%.2f"|format(user.total_usd_balance) }}
+  </h2>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px;">
+    <span class="balance-hero-change change-up" id="balanceChange">Live prices</span>
+    {% if user.is_admin %}
+    <a href="{{ url_for('admin_dashboard') }}" style="font-size:.72rem;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#f87171;padding:3px 10px;border-radius:10px;text-decoration:none;font-weight:700;">⚙ Admin Panel</a>
+    {% endif %}
+  </div>
+  <div class="balance-actions">
+    <a href="{{ url_for('deposit') }}"  class="btn btn-primary btn-sm">⬇ Deposit</a>
+    <a href="{{ url_for('withdraw') }}" class="btn btn-outline btn-sm">⬆ Withdraw</a>
+  </div>
+</div>
+
+<!-- Quick action buttons -->
+<div class="action-btn-group">
+  <a href="{{ url_for('deposit') }}"  class="action-btn">
+    <div class="action-btn-icon">⬇️</div>
+    <span class="action-btn-label">Fund</span>
+  </a>
+  <a href="{{ url_for('withdraw') }}" class="action-btn">
+    <div class="action-btn-icon">⬆️</div>
+    <span class="action-btn-label">Send</span>
+  </a>
+  <a href="{{ url_for('swap') }}"     class="action-btn">
+    <div class="action-btn-icon">⇄</div>
+    <span class="action-btn-label">Swap</span>
+  </a>
+  <a href="{{ url_for('plans') }}"    class="action-btn">
+    <div class="action-btn-icon">📈</div>
+    <span class="action-btn-label">Earn</span>
+  </a>
+</div>
+
+<!-- Crypto / wallet tabs -->
+<div class="crypto-tabs">
+  <button class="crypto-tab active" data-tab="crypto">Crypto</button>
+  <button class="crypto-tab" data-tab="plans">Plans</button>
+  <button class="crypto-tab" data-tab="history">History</button>
+</div>
+
+<!-- Crypto tab -->
+<div id="tab-crypto">
+  {% if wallets %}
+    {% for w in wallets %}
+    {% set meta = crypto_meta.get(w.symbol, {'name': w.symbol, 'color': '#6366f1', 'icon': '◈'}) %}
+    {% set price = prices.get(w.symbol, 1.0) %}
+    <div class="crypto-row">
+      <div class="crypto-row-icon" style="background:{{ meta.color }}">{{ meta.icon }}</div>
+      <div class="crypto-row-info">
+        <div class="crypto-row-sym">
+          {{ w.symbol }}
+          <span class="crypto-name-badge">{{ meta.name }}</span>
+        </div>
+        <div class="crypto-row-price">
+          <span data-price-sym="{{ w.symbol }}">${{ "{:,.4f}".format(price) if price < 1 else "{:,.2f}".format(price) }}</span>
+          &nbsp;<span class="crypto-change-badge up" data-change-sym="{{ w.symbol }}">+0.00%</span>
+        </div>
+      </div>
+      <div class="crypto-row-right">
+        <div class="crypto-row-bal">{{ "%.6f"|format(w.balance) if w.balance < 0.01 else "%.4f"|format(w.balance) }} {{ w.symbol }}</div>
+        <div class="crypto-row-usd">${{ "%.2f"|format(w.usd_value) }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">🪙</div>
+    <p>No assets yet. <a href="{{ url_for('deposit') }}" style="color:#818cf8">Make a deposit →</a></p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Plans tab -->
+<div id="tab-plans" style="display:none">
+  {% if active_plans %}
+    {% for plan in active_plans %}
+    <div class="card" style="padding:16px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-weight:700;font-size:.92rem;">{{ plan.plan_name }} Plan</span>
+        <span class="txn-status status-active">Active</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--text-2);margin-bottom:10px;">
+        <span>Invested: <strong style="color:var(--text)">${{ "%.2f"|format(plan.invested) }}</strong></span>
+        <span>Returns: <strong style="color:var(--green)">${{ "%.2f"|format(plan.returns) }}</strong></span>
+        <span>{{ plan.days }} days</span>
+      </div>
+      <div style="height:4px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:{{ plan.progress }}%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:4px;transition:width .5s;"></div>
+      </div>
+      <div style="font-size:.72rem;color:var(--text-3);margin-top:5px;font-family:'DM Mono',monospace;">Started {{ plan.started_at.strftime('%b %d, %Y') }}</div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">◆</div>
+    <p>No active plans. <a href="{{ url_for('plans') }}" style="color:#818cf8">Browse plans →</a></p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- History tab -->
+<div id="tab-history" style="display:none">
+  {% if transactions %}
+    {% for t in transactions %}
+    {% set meta = crypto_meta.get(t.currency, {'color':'#6366f1','icon':'◈'}) %}
+    <div class="txn-row">
+      <div class="txn-icon txn-{{ t.txn_type|lower|replace(' ','_') }}">
+        {% if t.txn_type == 'Deposit' %}⬇
+        {% elif t.txn_type == 'Withdrawal' %}⬆
+        {% elif t.txn_type == 'Investment' %}◆
+        {% elif t.txn_type == 'Swap' %}⇄
+        {% else %}✦{% endif %}
+      </div>
+      <div class="txn-info">
+        <div class="txn-type">{{ t.txn_type }}{% if t.txn_type=='Swap' and t.to_currency %} → {{ t.to_currency }}{% endif %}</div>
+        <div class="txn-date">{{ t.created_at.strftime('%b %d %H:%M') }}</div>
+      </div>
+      <div class="txn-right">
+        <div class="txn-amount" style="color:{% if t.txn_type=='Deposit' %}var(--green){% elif t.txn_type=='Withdrawal' %}var(--red){% else %}var(--text){% endif %}">
+          {{ '+' if t.txn_type=='Deposit' else '-' if t.txn_type=='Withdrawal' else '' }}{{ "%.6f"|format(t.amount) if t.amount < 0.01 else "%.4f"|format(t.amount) }} {{ t.currency }}
+        </div>
+        <span class="txn-status status-{{ t.status|lower }}">{{ t.status }}</span>
+      </div>
+    </div>
+    {% endfor %}
+    <div style="text-align:center;padding:16px;">
+      <a href="{{ url_for('transactions') }}" style="font-size:.82rem;color:#818cf8;font-weight:700;">View all transactions →</a>
+    </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">≡</div>
+    <p>No transactions yet.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Tab switching
+document.querySelectorAll('.crypto-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.crypto-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    ['crypto','plans','history'].forEach(id => {
+      document.getElementById('tab-'+id).style.display = (id === this.dataset.tab) ? 'block' : 'none';
+    });
+  });
+});
+// Animate balance on load
+const balEl = document.getElementById('totalBalance');
+if(balEl) {
+  const val = parseFloat(balEl.textContent.replace(/[^0-9.]/g,'')) || 0;
+  if(val > 0) animateCount(balEl, val, '$', '', 2);
+}
+</script>
+{% endblock %}

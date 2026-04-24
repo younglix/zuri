@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>{% block title %}ZURI Auth{% endblock %}</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+<body class="auth-body">
+  <div class="auth-stars" id="authStars"></div>
+  <div class="auth-blob blob-1"></div>
+  <div class="auth-blob blob-2"></div>
+
+  <div class="auth-wrapper">
+    <!-- Brand panel (desktop only) -->
+    <div class="auth-brand hidden-mobile">
+      <div class="brand-content">
+        <a href="{{ url_for('landing') }}" class="brand-logo">
+          <div class="brand-icon">⬡</div>
+          <span class="brand-name">ZURI</span>
+        </a>
+        <h2 class="brand-headline">Invest in the<br/><span class="brand-grad">future of money.</span></h2>
+        <p class="brand-sub">Deposit crypto, activate mining plans, and grow your wealth from one beautifully simple dashboard.</p>
+        <ul class="brand-features">
+          <li><span class="feat-icon">⬇️</span> Instant crypto deposits</li>
+          <li><span class="feat-icon">📈</span> Up to 200% ROI plans</li>
+          <li><span class="feat-icon">⇄</span> Live crypto swap</li>
+          <li><span class="feat-icon">🔒</span> Bank-grade security</li>
+        </ul>
+        <div class="brand-stats">
+          <div class="bstat"><span class="bstat-num">120K+</span><span class="bstat-label">Investors</span></div>
+          <div class="bstat"><span class="bstat-num">$48M+</span><span class="bstat-label">Deposited</span></div>
+          <div class="bstat"><span class="bstat-num">10</span><span class="bstat-label">Coins</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form panel -->
+    <div class="auth-form-panel">
+      <a href="{{ url_for('landing') }}" class="mobile-brand-logo">
+        <div class="brand-icon" style="width:32px;height:32px;font-size:1rem;">⬡</div>
+        <span class="brand-name" style="font-size:1.1rem;">ZURI</span>
+      </a>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="auth-flashes">
+          {% for cat, msg in messages %}
+          <div class="flash flash-{{ cat }}">
+            <span>{% if cat=='success' %}✓ {% elif cat=='error' %}✗ {% elif cat=='warning' %}⚠ {% else %}ℹ {% endif %}{{ msg }}</span>
+            <button onclick="this.parentElement.remove()">×</button>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block form %}{% endblock %}
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      const c=document.getElementById('authStars');
+      for(let i=0;i<70;i++){
+        const s=document.createElement('div');
+        s.className='auth-star';
+        const sz=Math.random()*2+.4;
+        s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${(Math.random()*3+2).toFixed(1)}s;--dl:${(Math.random()*4).toFixed(1)}s;opacity:${(Math.random()*.5+.1).toFixed(2)}`;
+        c.appendChild(s);
+      }
+    })();
+    window.togglePw=function(id,btn){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';btn.textContent=i.type==='password'?'👁':'🙈'};
+  </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Transaction History — ZURI{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+  <div>
+    <h1 class="page-title">History</h1>
+    <p class="page-sub">{{ transactions|length }} total transactions</p>
+  </div>
+</div>
+
+<div class="card" style="overflow:hidden;">
+  <!-- filter tabs -->
+  <div style="display:flex;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;">
+    {% for label, val in [('All','all'),('Deposits','deposit'),('Withdrawals','withdrawal'),('Swaps','swap'),('Plans','investment')] %}
+    <button class="crypto-tab {% if loop.first %}active{% endif %}" data-filter="{{ val }}" style="flex-shrink:0;">{{ label }}</button>
+    {% endfor %}
+  </div>
+
+  <div style="padding:0 16px;" id="txnList">
+    {% if transactions %}
+      {% for t in transactions %}
+      <div class="txn-row" data-type="{{ t.txn_type|lower }}">
+        <div class="txn-icon txn-{{ t.txn_type|lower|replace(' ','_') }}">
+          {% if t.txn_type=='Deposit' %}⬇
+          {% elif t.txn_type=='Withdrawal' %}⬆
+          {% elif t.txn_type=='Investment' %}◆
+          {% elif t.txn_type=='Swap' %}⇄
+          {% else %}✦{% endif %}
+        </div>
+        <div class="txn-info">
+          <div class="txn-type">
+            {{ t.txn_type }}
+            {% if t.txn_type=='Swap' and t.to_currency %}<span style="font-size:.72rem;color:var(--cyan);">→ {{ t.to_currency }}</span>{% endif %}
+          </div>
+          <div class="txn-date">{{ t.created_at.strftime('%b %d, %Y %H:%M') }}</div>
+          {% if t.note %}<div class="txn-note">{{ t.note }}</div>{% endif %}
+        </div>
+        <div class="txn-right">
+          <div class="txn-amount" style="color:{% if t.txn_type=='Deposit' or 'Credit' in t.txn_type %}var(--green){% elif t.txn_type=='Withdrawal' or 'Debit' in t.txn_type %}var(--red){% else %}var(--text){% endif %}">
+            {% if t.txn_type=='Deposit' or 'Credit' in t.txn_type %}+{% elif t.txn_type=='Withdrawal' or 'Debit' in t.txn_type %}−{% endif %}{{ "%.6f"|format(t.amount) if t.amount < 0.01 else "%.4f"|format(t.amount) }} {{ t.currency }}
+          </div>
+          {% if t.usd_value %}<div class="txn-usd">${{ "%.2f"|format(t.usd_value) }}</div>{% endif %}
+          <span class="txn-status status-{{ t.status|lower }}">{{ t.status }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">≡</div>
+      <p>No transactions yet. <a href="{{ url_for('deposit') }}" style="color:#818cf8">Make a deposit →</a></p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.crypto-tab[data-filter]').forEach(tab=>{
+  tab.addEventListener('click',function(){
+    document.querySelectorAll('.crypto-tab[data-filter]').forEach(t=>t.classList.remove('active'));
+    this.classList.add('active');
+    const f=this.dataset.filter;
+    document.querySelectorAll('#txnList .txn-row').forEach(row=>{
+      row.style.display=(f==='all'||row.dataset.type===f)?'flex':'none';
+    });
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Swap — ZURI{% endblock %}
+{% block content %}
+<div style="margin-bottom:20px;">
+  <h1 class="page-title">Swap</h1>
+  <p class="page-sub">Convert crypto instantly · 0.1% fee</p>
+</div>
+
+<div class="card" style="padding:20px;margin-bottom:16px;">
+  <!-- From -->
+  <p class="section-title">From</p>
+  <div style="display:flex;gap:10px;margin-bottom:6px;">
+    <div class="select-wrap" style="width:140px;flex-shrink:0;">
+      <select id="fromCoin" class="field-select" onchange="recalc()">
+        {% for w in wallets %}
+        {% set m = crypto_meta.get(w.symbol,{'icon':'◈','name':w.symbol}) %}
+        <option value="{{ w.symbol }}" data-bal="{{ w.balance }}">{{ m.icon }} {{ w.symbol }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <input type="number" id="fromAmt" class="field-input" placeholder="0.00000000" min="0" step="any" oninput="recalc()">
+  </div>
+  <div style="font-size:.75rem;color:var(--text-2);margin-bottom:16px;">Balance: <span id="fromBal" style="font-family:'DM Mono',monospace;color:var(--text);">0</span> &nbsp;<button onclick="setSwapMax()" style="font-size:.72rem;color:#818cf8;background:none;border:none;cursor:pointer;font-weight:700;">MAX</button></div>
+
+  <!-- Swap arrow -->
+  <div style="text-align:center;margin-bottom:16px;">
+    <button onclick="swapCoins()" style="width:40px;height:40px;border-radius:50%;background:var(--bg-input);border:1px solid var(--border);color:var(--text);font-size:1.1rem;cursor:pointer;transition:transform .2s;" onmouseover="this.style.transform='rotate(180deg)'" onmouseout="this.style.transform='rotate(0)'">⇅</button>
+  </div>
+
+  <!-- To -->
+  <p class="section-title">To</p>
+  <div style="display:flex;gap:10px;margin-bottom:6px;">
+    <div class="select-wrap" style="width:140px;flex-shrink:0;">
+      <select id="toCoin" class="field-select" onchange="recalc()">
+        {% for w in wallets %}
+        {% set m = crypto_meta.get(w.symbol,{'icon':'◈','name':w.symbol}) %}
+        <option value="{{ w.symbol }}" {% if loop.index==2 %}selected{% endif %}>{{ m.icon }} {{ w.symbol }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <input type="number" id="toAmt" class="field-input" placeholder="0.00000000" readonly style="background:var(--bg);color:var(--green);">
+  </div>
+  <div style="font-size:.75rem;color:var(--text-2);margin-bottom:16px;">Balance: <span id="toBal" style="font-family:'DM Mono',monospace;color:var(--text);">0</span></div>
+
+  <!-- Rate -->
+  <div style="background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:18px;">
+    <span style="color:var(--text-2);">Rate</span>
+    <span id="rateDisplay" style="font-family:'DM Mono',monospace;font-weight:700;">—</span>
+  </div>
+
+  <button type="button" class="btn btn-primary btn-full" id="swapBtn" disabled onclick="doSwap()">
+    ⇄ Swap Now
+  </button>
+</div>
+
+<!-- Success -->
+<div id="swapSuccess" style="display:none;text-align:center;padding:20px;">
+  <div style="font-size:3rem;margin-bottom:12px;">✅</div>
+  <h3 style="font-weight:800;margin-bottom:8px;">Swap Successful</h3>
+  <p id="swapSuccessMsg" style="color:var(--text-2);font-size:.88rem;margin-bottom:16px;"></p>
+  <a href="{{ url_for('dashboard') }}" class="btn btn-outline" style="margin-right:8px;">← Dashboard</a>
+  <button onclick="resetSwap()" class="btn btn-primary">Swap Again</button>
+</div>
+
+{% endblock %}
+{% block extra_js %}
+<script>
+const PRICES = {{ prices|tojson }};
+const BALS = {};
+{% for w in wallets %}BALS['{{ w.symbol }}'] = {{ w.balance }};{% endfor %}
+
+function recalc() {
+  const fromSym = document.getElementById('fromCoin').value;
+  const toSym   = document.getElementById('toCoin').value;
+  const fromAmt = parseFloat(document.getElementById('fromAmt').value)||0;
+  const fromBal = BALS[fromSym]||0;
+  const fromP   = PRICES[fromSym]||1;
+  const toP     = PRICES[toSym]||1;
+  const fee     = 0.001;
+  const toAmt   = fromAmt > 0 ? ((fromAmt * fromP * (1-fee)) / toP) : 0;
+  document.getElementById('fromBal').textContent = (fromBal).toFixed(6)+' '+fromSym;
+  document.getElementById('toBal').textContent   = (BALS[toSym]||0).toFixed(6)+' '+toSym;
+  document.getElementById('toAmt').value = toAmt > 0 ? toAmt.toFixed(8) : '';
+  document.getElementById('rateDisplay').textContent = `1 ${fromSym} = ${(fromP/toP).toFixed(8)} ${toSym}`;
+  document.getElementById('swapBtn').disabled = !(fromAmt>0 && fromAmt<=fromBal && fromSym!==toSym);
+}
+
+function setSwapMax() {
+  const sym = document.getElementById('fromCoin').value;
+  document.getElementById('fromAmt').value = (BALS[sym]||0).toFixed(8);
+  recalc();
+}
+
+function swapCoins() {
+  const f = document.getElementById('fromCoin'), t = document.getElementById('toCoin');
+  [f.value, t.value] = [t.value, f.value];
+  recalc();
+}
+
+function doSwap() {
+  const fd = new FormData();
+  fd.append('_csrf', document.querySelector('meta[name=csrf-token]').content);
+  fd.append('from_currency', document.getElementById('fromCoin').value);
+  fd.append('to_currency',   document.getElementById('toCoin').value);
+  fd.append('amount',        document.getElementById('fromAmt').value);
+  document.getElementById('swapBtn').disabled = true;
+  document.getElementById('swapBtn').textContent = 'Swapping…';
+  fetch('{{ url_for("swap") }}',{method:'POST',body:fd})
+    .then(r=>r.json()).then(d=>{
+      if(d.success){
+        document.querySelector('.card').style.display='none';
+        document.getElementById('swapSuccess').style.display='block';
+        const from=document.getElementById('fromCoin').value, to=document.getElementById('toCoin').value;
+        document.getElementById('swapSuccessMsg').textContent = `Successfully swapped ${document.getElementById('fromAmt').value} ${from} → ${d.to_amount} ${to}`;
+        BALS[from]=d.from_balance; BALS[to]=d.to_balance;
+      } else {
+        showToast(d.error||'Swap failed.','error');
+        document.getElementById('swapBtn').disabled=false;
+        document.getElementById('swapBtn').textContent='⇄ Swap Now';
+      }
+    });
+}
+
+function resetSwap() {
+  document.querySelector('.card').style.display='block';
+  document.getElementById('swapSuccess').style.display='none';
+  document.getElementById('fromAmt').value='';
+  document.getElementById('swapBtn').textContent='⇄ Swap Now';
+  recalc();
+}
+
+// Initial render
+recalc();
+</script>
+{% endblock %}

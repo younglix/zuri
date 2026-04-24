@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block title %}Mining Plans — ZURI{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Mining Plans</h1>
+<p class="page-sub">Activate a plan · earn guaranteed returns</p>
+
+<!-- Pay currency selector -->
+<div class="field-group" style="margin-bottom:18px;">
+  <label class="field-label">Pay with</label>
+  <div class="select-wrap">
+    <select id="payCoin" class="field-select">
+      {% for w in wallets %}
+      {% set m = crypto_meta.get(w.symbol, {'icon':'◈'}) %}
+      <option value="{{ w.symbol }}" data-bal="{{ w.balance }}" data-price="{{ prices.get(w.symbol,1) }}">
+        {{ m.icon }} {{ w.symbol }} ({{ "%.4f"|format(w.balance) }} available)
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  <span class="field-hint">
+    Balance: <span id="payBal" style="font-family:'DM Mono',monospace;"></span>
+  </span>
+</div>
+
+<div class="plans-grid" id="plansGrid">
+  {% for p in plans_data %}
+  <div class="plan-card {% if p.id==3 %}popular{% endif %}" id="planCard{{ p.id }}">
+    
+    {% if p.id==3 %}
+    <div class="plan-popular-tag">🔥 Popular</div>
+    {% endif %}
+
+    <div class="plan-badge">PLAN 0{{ p.id }}</div>
+
+    <div class="plan-icon">
+      {{ '🌱' if p.id==1 else '📈' if p.id==2 else '⚡' if p.id==3 else '💎' if p.id==4 else '👑' }}
+    </div>
+
+    <div style="font-size:.88rem;font-weight:800;">{{ p.name }}</div>
+
+    <div>
+      <div style="font-size:.65rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.1em;">Invest</div>
+      <div class="plan-invest-amt">${{ p.cost }}</div>
+    </div>
+
+    <div class="plan-arrow">↓</div>
+
+    <div>
+      <div style="font-size:.65rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.1em;">Returns</div>
+      <div class="plan-return-amt">${{ p['return'] }}</div>
+    </div>
+
+    <div class="plan-meta">
+      <span class="plan-days">⏱ {{ p.days }}d</span>
+      <span class="plan-roi">{{ p.roi }}% ROI</span>
+    </div>
+
+    <!-- Cost in crypto -->
+    <div style="font-size:.72rem;color:var(--text-3);text-align:center;font-family:'DM Mono',monospace;" id="planCost{{ p.id }}">
+      ≈ loading…
+    </div>
+
+    <!-- ✅ FIXED: pass return into JS -->
+    <button class="btn btn-primary btn-full btn-sm"
+      style="margin-top:4px;"
+      onclick="buyPlan({{ p.id }}, {{ p.cost }}, '{{ p.name }}', {{ p['return'] }})"
+      id="planBtn{{ p.id }}">
+      Activate
+    </button>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Active plans -->
+{% if active_plans %}
+<div style="margin-top:24px;">
+  <p class="section-title">Your Active Plans</p>
+
+  {% for plan in active_plans %}
+  <div class="card" style="padding:16px;margin-bottom:10px;">
+    
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span style="font-weight:700;">{{ plan.plan_name }}</span>
+      <span class="txn-status status-active">Active</span>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--text-2);margin-bottom:8px;">
+  <span>
+    ${{ "%.2f"|format(plan.invested) }} →
+    <span style="color:var(--green);">${{ "%.2f"|format(plan.returns) }}</span>
+  </span>
+  <span>{{ plan.days }} days · Started {{ plan.started_at.strftime('%b %d') }}</span>
+</div>
+
+<div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--text-3);margin-top:4px;">
+  <span>Progress</span>
+  <span>{{ "%.1f"|format(plan.progress) }}%</span>
+</div>
+
+    <div style="height:4px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;">
+      <div style="height:100%;width:{{ plan.progress }}%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:4px;"></div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Confirm modal -->
+<div class="modal-overlay" id="planModal" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-handle"></div>
+
+    <div class="modal-title" id="modalTitle">Confirm Plan</div>
+    <div class="modal-sub" id="modalSub"></div>
+
+    <div id="modalDetail" style="background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:4px;"></div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-full" onclick="closePlanModal()">Cancel</button>
+      <button class="btn btn-primary btn-full" id="modalConfirmBtn" onclick="confirmPlan()">Confirm</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const PRICES = {{ prices|tojson }};
+
+let pendingPlanId = null;
+let pendingCost = 0;
+let pendingName = '';
+let pendingReturn = 0;
+
+function updatePlanCosts(){
+  const opt = document.querySelector('#payCoin option:checked');
+  if(!opt) return;
+
+  const sym = opt.value;
+  const price = parseFloat(opt.dataset.price) || 1;
+  const bal = parseFloat(opt.dataset.bal) || 0;
+
+  document.getElementById('payBal').textContent = bal.toFixed(6)+' '+sym;
+
+  {% for p in plans_data %}
+  const c{{ p.id }} = ({{ p.cost }}/price).toFixed(6);
+  document.getElementById('planCost{{ p.id }}').textContent = '≈ '+c{{ p.id }}+' '+sym;
+
+  const b{{ p.id }} = document.getElementById('planBtn{{ p.id }}');
+  if(bal < {{ p.cost }}/price){
+    b{{ p.id }}.disabled = true;
+    b{{ p.id }}.textContent = 'Insufficient';
+  } else {
+    b{{ p.id }}.disabled = false;
+    b{{ p.id }}.textContent = 'Activate';
+  }
+  {% endfor %}
+}
+
+document.getElementById('payCoin').addEventListener('change', updatePlanCosts);
+updatePlanCosts();
+
+function buyPlan(id, cost, name, ret){
+  pendingPlanId = id;
+  pendingCost = cost;
+  pendingName = name;
+  pendingReturn = ret;
+
+  const sym = document.getElementById('payCoin').value;
+  const price = PRICES[sym] || 1;
+  const cryptoCost = (cost / price).toFixed(6);
+
+  document.getElementById('modalTitle').textContent = 'Activate ' + name + ' Plan';
+  document.getElementById('modalSub').textContent = 'Investment will be deducted from your ' + sym + ' wallet.';
+
+  document.getElementById('modalDetail').innerHTML = `
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:.83rem;">
+      <span style="color:var(--text-2)">Cost (USD)</span>
+      <strong>$${cost}</strong>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:.83rem;">
+      <span style="color:var(--text-2)">Cost (${sym})</span>
+      <strong style="font-family:'DM Mono',monospace;">${cryptoCost} ${sym}</strong>
+    </div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.83rem;">
+      <span style="color:var(--text-2)">Returns</span>
+      <strong style="color:var(--green);">$${pendingReturn}</strong>
+    </div>
+  `;
+
+  document.getElementById('planModal').style.display = 'flex';
+}
+
+function closePlanModal(){
+  document.getElementById('planModal').style.display = 'none';
+}
+
+function confirmPlan(){
+  const sym = document.getElementById('payCoin').value;
+
+  const fd = new FormData();
+  fd.append('_csrf', document.querySelector('meta[name=csrf-token]').content);
+  fd.append('plan_id', pendingPlanId);
+  fd.append('currency', sym);
+
+  const btn = document.getElementById('modalConfirmBtn');
+  btn.disabled = true;
+  btn.textContent = 'Processing…';
+
+  fetch('{{ url_for("plans") }}', {method:'POST', body:fd})
+    .then(r => r.json())
+    .then(d => {
+      closePlanModal();
+      btn.disabled = false;
+      btn.textContent = 'Confirm';
+
+      if(d.success){
+        showToast(d.plan_name + ' Plan activated! 🚀','success');
+        setTimeout(()=>location.reload(),1500);
+      } else {
+        showToast(d.error || 'Failed.','error');
+      }
+    });
+}
+
+document.getElementById('planModal').addEventListener('click', e => {
+  if(e.target.id === 'planModal') closePlanModal();
+});
+</script>
+{% endblock %}

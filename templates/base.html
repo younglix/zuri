@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>{% block title %}ZURI{% endblock %}</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ── Top Bar ── -->
+<header class="topbar">
+  <a href="{{ url_for('dashboard') }}" class="topbar-logo">
+    <div class="topbar-logo-icon">⬡</div>
+    <span class="topbar-logo-name">ZURI</span>
+  </a>
+  <div class="topbar-right">
+    {% if user %}
+    <a href="{{ url_for('wallet') if 'wallet' in url_for.__module__ else '#' }}" class="topbar-wallet-pill" href="{{ url_for('dashboard') }}">
+      <span class="topbar-wallet-dot"></span>
+      <span>${{ "%.2f"|format(user.total_usd_balance) }}</span>
+    </a>
+    <a href="{{ url_for('profile') }}" class="topbar-avatar" style="background:{{ user.avatar_color }}">
+      {{ user.name[0].upper() }}
+    </a>
+    {% endif %}
+  </div>
+</header>
+
+<!-- ── Flash messages ── -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-container">
+    {% for cat, msg in messages %}
+    <div class="flash flash-{{ cat }}">
+      <span>{% if cat=='success' %}✓ {% elif cat=='error' %}✗ {% elif cat=='warning' %}⚠ {% else %}ℹ {% endif %}{{ msg }}</span>
+      <button onclick="this.parentElement.remove()">×</button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+
+{% if announce %}
+<div class="announce-banner" style="margin:8px 16px 0;max-width:480px;margin-left:auto;margin-right:auto;">
+  📢 {{ announce }}
+</div>
+{% endif %}
+
+<!-- ── Main Content ── -->
+<main class="page">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ── Bottom Navigation ── -->
+<nav class="bottom-nav">
+  <a href="{{ url_for('dashboard') }}"    class="bnav-item {% if request.endpoint=='dashboard' %}active{% endif %}">
+    <span class="bnav-icon">◈</span>
+    <span>Home</span>
+  </a>
+  <a href="{{ url_for('swap') }}"         class="bnav-item {% if request.endpoint=='swap' %}active{% endif %}">
+    <span class="bnav-icon">⇄</span>
+    <span>Swap</span>
+  </a>
+  <a href="{{ url_for('plans') }}"        class="bnav-item {% if request.endpoint=='plans' %}active{% endif %}">
+    <span class="bnav-icon">◆</span>
+    <span>Earn</span>
+  </a>
+  <a href="{{ url_for('transactions') }}" class="bnav-item {% if request.endpoint=='transactions' %}active{% endif %}">
+    <span class="bnav-icon">≡</span>
+    <span>History</span>
+  </a>
+  <a href="{{ url_for('profile') }}"      class="bnav-item {% if request.endpoint=='profile' %}active{% endif %}">
+    <span class="bnav-icon">👤</span>
+    <span>Profile</span>
+  </a>
+</nav>
+<script defer src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block extra_js %}{% endblock %}
+
+
+
+  <!--Start of Tawk.to Script-->
+  <script type="text/javascript">
+  var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+  (function(){
+  var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+  s1.async=true;
+  s1.src='https://embed.tawk.to/69e926feada7971c37849380/1jmrc0mtb';
+  s1.charset='UTF-8';
+  s1.setAttribute('crossorigin','*');
+  s0.parentNode.insertBefore(s1,s0);
+  })();
+  </script>
+  <!--End of Tawk.to Script-->
+
+</body>
+</html>

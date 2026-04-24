@@ -1,0 +1,125 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Settings — ZURI Admin{% endblock %}
+{% block page_title %}Site Settings{% endblock %}
+{% block content %}
+
+<div class="admin-page-title">Site Settings</div>
+<p class="admin-page-sub">Global platform controls — changes take effect immediately</p>
+
+<div class="admin-settings-grid">
+  <!-- Main form -->
+  <div class="admin-settings-card">
+    <form method="POST" action="{{ url_for('admin_settings') }}">
+      <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+      <!-- Toggle controls -->
+      <div class="settings-section">
+        <h3 class="settings-section-title">Platform Controls</h3>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-title">🔧 Maintenance Mode</div>
+            <div class="settings-row-sub">When ON, only admins can access the app. Users see a maintenance page.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" name="maintenance_mode" {% if settings.maintenance_mode %}checked{% endif %}>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-title">✅ Allow New Registrations</div>
+            <div class="settings-row-sub">When OFF, the sign up page is disabled and new accounts cannot be created.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" name="allow_registrations" {% if settings.allow_new_registrations %}checked{% endif %}>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Transaction limits -->
+      <div class="settings-section">
+        <h3 class="settings-section-title">Transaction Limits</h3>
+        <div class="settings-field-row">
+          <div class="settings-field-group">
+            <label class="field-label">Min Deposit (crypto units)</label>
+            <div class="field-wrap">
+              <input type="number" name="min_deposit" class="field-input" value="{{ settings.min_deposit }}" min="0" step="any">
+            </div>
+            <span class="field-hint">e.g. 0.0001 BTC, 1 USDT</span>
+          </div>
+          <div class="settings-field-group">
+            <label class="field-label">Min Withdrawal (crypto units)</label>
+            <div class="field-wrap">
+              <input type="number" name="min_withdraw" class="field-input" value="{{ settings.min_withdraw }}" min="0" step="any">
+            </div>
+            <span class="field-hint">e.g. 0.0001 BTC, 10 USDT</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Announcement -->
+      <div class="settings-section">
+        <h3 class="settings-section-title">📢 Platform Announcement</h3>
+        <p class="settings-section-sub">Displays a banner on the dashboard for all logged-in users. Leave blank to hide.</p>
+        <textarea name="announce_msg" class="settings-textarea" placeholder="Enter announcement message...">{{ settings.announce_msg }}</textarea>
+      </div>
+
+      <div class="settings-submit-row">
+        <button type="submit" class="admin-btn-primary admin-btn-lg">Save Settings</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Status sidebar -->
+  <div class="admin-settings-sidebar">
+    <div class="status-card">
+      <h4 class="status-card-title">Current Status</h4>
+      <div class="status-items">
+        <div class="status-item">
+          <span class="status-item-label">Maintenance</span>
+          <span class="status-pill {{ 'pill-red' if settings.maintenance_mode else 'pill-green' }}">{{ 'ON' if settings.maintenance_mode else 'OFF' }}</span>
+        </div>
+        <div class="status-item">
+          <span class="status-item-label">Registrations</span>
+          <span class="status-pill {{ 'pill-green' if settings.allow_new_registrations else 'pill-red' }}">{{ 'OPEN' if settings.allow_new_registrations else 'CLOSED' }}</span>
+        </div>
+        <div class="status-item">
+          <span class="status-item-label">Min Deposit</span>
+          <span class="status-pill pill-blue">{{ settings.min_deposit }}</span>
+        </div>
+        <div class="status-item">
+          <span class="status-item-label">Min Withdraw</span>
+          <span class="status-pill pill-blue">{{ settings.min_withdraw }}</span>
+        </div>
+        <div class="status-item">
+          <span class="status-item-label">Announcement</span>
+          <span class="status-pill {{ 'pill-yellow' if settings.announce_msg else 'pill-grey' }}">{{ 'SET' if settings.announce_msg else 'NONE' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-card">
+      <h4 class="status-card-title">⚠ Admin Credentials</h4>
+      <div class="cred-display">
+        <div class="cred-row"><span>Email:</span><code>admin@zuri.app</code></div>
+        <div class="cred-row"><span>Password:</span><code>admin1234</code></div>
+        <div class="cred-note">Change via Forgot Password in production.</div>
+      </div>
+    </div>
+
+    <div class="status-card">
+      <h4 class="status-card-title">🛡 Security</h4>
+      <div class="status-items">
+        <div class="status-item"><span class="status-item-label">CSRF Protection</span><span class="status-pill pill-green">ON</span></div>
+        <div class="status-item"><span class="status-item-label">Security Headers</span><span class="status-pill pill-green">ON</span></div>
+        <div class="status-item"><span class="status-item-label">Session HTTPONLY</span><span class="status-pill pill-green">ON</span></div>
+        <div class="status-item"><span class="status-item-label">Password Hashing</span><span class="status-pill pill-green">PBKDF2</span></div>
+        <div class="status-item"><span class="status-item-label">Database</span><span class="status-pill pill-blue">PostgreSQL</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

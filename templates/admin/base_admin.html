@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Admin — ZURI{% endblock %}</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body style="padding:0;padding-bottom:0;padding-top:0;">
+
+<div class="admin-wrapper">
+  <!-- Sidebar -->
+  <nav class="admin-sidebar" id="adminSidebar">
+    <div class="admin-logo">
+      <div class="admin-logo-icon">⬡</div>
+      <div>
+        <div class="admin-logo-text">ZURI</div>
+        <span class="admin-logo-badge">ADMIN PANEL</span>
+      </div>
+    </div>
+    <ul class="admin-nav">
+      <li><a href="{{ url_for('admin_dashboard') }}"    class="admin-nav-link {% if request.endpoint=='admin_dashboard' %}active{% endif %}">◈ Overview</a></li>
+      <li><a href="{{ url_for('admin_users') }}"        class="admin-nav-link {% if request.endpoint=='admin_users' %}active{% endif %}">👥 Users</a></li>
+      <li><a href="{{ url_for('admin_transactions') }}" class="admin-nav-link {% if request.endpoint=='admin_transactions' %}active{% endif %}">≡ Transactions</a></li>
+      <li><a href="{{ url_for('admin_plans') }}"        class="admin-nav-link {% if request.endpoint=='admin_plans' %}active{% endif %}">◆ Plans</a></li>
+      <li><a href="{{ url_for('admin_settings') }}"     class="admin-nav-link {% if request.endpoint=='admin_settings' %}active{% endif %}">⚙ Settings</a></li>
+    </ul>
+    <div style="padding:12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:4px;">
+      <a href="{{ url_for('dashboard') }}" class="admin-nav-link">◀ Back to App</a>
+      <a href="{{ url_for('logout') }}"    class="admin-nav-link" style="color:var(--red);opacity:.8;">⏻ Sign Out</a>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <button class="admin-menu-btn" id="adminMenuBtn">☰</button>
+      <div class="admin-topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:{{ user.avatar_color }};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;color:#fff;">{{ user.name[0].upper() }}</div>
+        <span style="font-size:.83rem;color:var(--text-2);display:none;" class="show-sm">{{ user.name }}</span>
+      </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div style="padding:0 24px;margin-top:16px;display:flex;flex-direction:column;gap:8px;">
+        {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">
+          <span>{% if cat=='success' %}✓ {% elif cat=='error' %}✗ {% else %}ℹ {% endif %}{{ msg }}</span>
+          <button onclick="this.parentElement.remove()">×</button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="admin-content">{% block content %}{% endblock %}</div>
+  </div>
+</div>
+
+<div class="sidebar-overlay" id="adminOverlay"></div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% block title %}Deposit — ZURI{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:20px;">
+  <h1 class="page-title">Deposit Crypto</h1>
+  <p class="page-sub">Select a coin and confirm to add funds to your wallet</p>
+</div>
+
+<form method="POST" action="{{ url_for('deposit') }}" id="depositForm">
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+
+  <!-- COIN SELECT -->
+  <div class="field-group">
+    <label class="field-label">Select Cryptocurrency</label>
+    <div class="select-wrap">
+      <select name="currency" id="coinSelect" class="field-select">
+        <option value="">— Choose coin —</option>
+        {% for sym in coins %}
+        {% set m = crypto_meta[sym] %}
+        <option value="{{ sym }}">{{ m.icon }} {{ sym }} — {{ m.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <!-- AMOUNT -->
+  <div class="field-group">
+    <label class="field-label">Amount</label>
+    <div class="field-wrap">
+      <span class="field-suffix"
+            style="left:auto;right:14px;top:50%;transform:translateY(-50%);color:var(--text-2);font-weight:700;font-size:.85rem;"
+            id="amtSuffix">USDT</span>
+
+      <input type="number" name="amount" id="depositAmt"
+             class="field-input"
+             placeholder="0.00000000"
+             min="0.00000001"
+             step="any"
+             style="padding-right:60px;"
+             required>
+    </div>
+
+    <span class="field-hint">
+      ≈ <span id="usdEst">$0.00</span> USD &nbsp;·&nbsp;
+      Min: <span id="minDep">0.00000001</span>
+    </span>
+
+    <button type="button" id="proceedBtn"
+        class="btn btn-primary btn-full"
+        style="margin-top:10px;">
+  Proceed
+</button>
+
+
+  </div>
+
+
+
+  <!-- WALLET BLOCK -->
+  <div id="walletBlock" style="display:none;margin-bottom:20px;">
+    <div class="card" style="padding:20px;">
+      <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+
+        <!-- QR -->
+        <div style="flex-shrink:0;">
+  <div style="background:#fff;border-radius:10px;padding:8px;width:136px;height:136px;position:relative;">
+    <div id="qrGrid" style="width:120px;height:120px;"></div>
+    <div class="qr-scan-line"></div>
+  </div>
+
+  <div style="text-align:center;font-size:.7rem;font-weight:800;letter-spacing:.15em;color:#111;margin-top:4px;background:#fff;border-radius:4px;padding:2px 0;">
+    ZURI
+  </div>
+</div>
+
+        <!-- INFO -->
+        <div style="flex:1;min-width:200px;">
+          <p style="font-size:.72rem;color:var(--text-2);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">
+            Send <span id="sendAmountLabel">—</span> <span id="selectedCoinLabel">—</span> to this address
+          </p>
+
+          <div style="background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+            <span id="walletAddr"
+                  style="font-family:'DM Mono',monospace;font-size:.72rem;color:#818cf8;flex:1;word-break:break-all;"></span>
+
+            <button type="button" onclick="copyAddr()"
+                    style="background:none;border:none;color:var(--text-2);cursor:pointer;font-size:1rem;"
+                    id="copyBtn">⎘</button>
+          </div>
+
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span style="font-size:.68rem;">Network:</span>
+            <span id="networkTag"
+                  style="font-size:.68rem;background:rgba(6,182,212,.12);color:#22d3ee;border:1px solid rgba(6,182,212,.2);padding:2px 8px;border-radius:6px;font-weight:700;"></span>
+          </div>
+
+          <p style="font-size:.68rem;color:var(--yellow);margin-top:8px;">
+            ⚠ make sure the amount is sent on the correct network & Address to avoid loss.
+
+
+        </div>
+      </div>
+
+      <!-- PRICE -->
+      <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:12px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:.75rem;color:var(--text-2);">Current price</span>
+        <span style="font-family:'DM Mono',monospace;font-size:.85rem;font-weight:700;" id="currentPrice">—</span>
+        <span class="crypto-change-badge up" id="priceChange">+0.00%</span>
+      </div>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary btn-full" id="depositBtn" disabled>
+    ⬇ Confirm Deposit
+  </button>
+</form>
+
+<!-- BALANCES -->
+<div style="margin-top:24px;">
+  <p class="section-title">Your Balances</p>
+  {% for w in wallets %}
+  {% set m = crypto_meta.get(w.symbol, {'name':w.symbol,'color':'#6366f1','icon':'◈'}) %}
+  <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+    <div class="crypto-row-icon" style="background:{{ m.color }};width:34px;height:34px;font-size:.9rem;">
+      {{ m.icon }}
+    </div>
+
+    <div style="flex:1;">
+      <div style="font-size:.85rem;font-weight:700;">{{ w.symbol }}</div>
+    </div>
+
+    <div style="text-align:right;">
+      <div style="font-size:.85rem;font-weight:700;font-family:'DM Mono',monospace;">
+        {{ "%.6f"|format(w.balance) }}
+      </div>
+      <div style="font-size:.7rem;color:var(--text-3);">
+        ${{ "%.2f"|format(w.usd_value) }}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const PRICES = {{ prices | tojson }};
+
+  const COIN_DATA = {
+    BTC:{address:"bc1q8q662y9kju0llwsvxz490f0ez6s65cpvn9vf9h",network:"BTC Mainnet"},
+    ETH:{address:"0x0a40d8bFE56b61A1F64b260Fc859C674091bE228",network:"ERC-20"},
+    USDT:{address:"TVYNuht3HLjaPyNxKbcym9y4C8iY5NdSeq",network:"TRC-20"},
+    BNB:{address:"0x0a40d8bFE56b61A1F64b260Fc859C674091bE228",network:"BEP-20"},
+    SOL:{address:"SoLzuri000000000000000000000000",network:"Solana"},
+    XRP:{address:"rZuriXRP0000000000000000000000",network:"XRPL"},
+    DOGE:{address:"DogeZuri0000000000000000000000",network:"DOGE Mainnet"},
+    TRX:{address:"TzuriTRX0000000000000000000000",network:"TRC-20"},
+    ADA:{address:"addr_zuri_ada_0000000000000000",network:"Cardano"},
+    MATIC:{address:"0xZuriPolygon000000000000000000",network:"Polygon"}
+  };
+
+  let selectedCoin = null;
+  let confirmedAmount = null;
+
+  const coinSelect = document.getElementById("coinSelect");
+  const amtInput   = document.getElementById("depositAmt");
+  const proceedBtn = document.getElementById("proceedBtn");
+
+  const block = document.getElementById("walletBlock");
+  const btn   = document.getElementById("depositBtn");
+
+  // STEP 1: coin selection ONLY
+  coinSelect.addEventListener("change", function () {
+    selectedCoin = this.value || null;
+  });
+
+  // STEP 2: proceed button locks amount
+  proceedBtn.addEventListener("click", function () {
+
+    const amt = parseFloat(amtInput.value);
+
+    if (!selectedCoin || !amt || amt <= 0) {
+      alert("Select coin and enter valid amount");
+      return;
+    }
+
+    confirmedAmount = amt;
+
+    const coin = COIN_DATA[selectedCoin];
+    if (!coin) return;
+
+    // SHOW WALLET CARD ONLY HERE
+    block.style.display = "block";
+
+    // update labels
+    document.getElementById("selectedCoinLabel").textContent = selectedCoin;
+    document.getElementById("sendAmountLabel").textContent = confirmedAmount;
+
+    document.getElementById("walletAddr").textContent = coin.address;
+    document.getElementById("networkTag").textContent = coin.network;
+
+    const price = PRICES[selectedCoin] || 1;
+    document.getElementById("usdEst").textContent =
+      "$" + (confirmedAmount * price).toFixed(2);
+
+    document.getElementById("currentPrice").textContent =
+      "$" + price.toLocaleString();
+
+    btn.disabled = false;
+
+    buildQR(coin.address);
+  });
+
+
+  function buildQR(address) {
+    const box = document.getElementById("qrGrid");
+    if (!box) return;
+
+    if (typeof QRCode === "undefined") {
+      console.error("QRCode library not loaded");
+      return;
+    }
+
+    box.innerHTML = "";
+
+    new QRCode(box, {
+      text: address,
+      width: 120,
+      height: 120,
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  }
+
+  window.copyAddr = function () {
+    navigator.clipboard.writeText(
+      document.getElementById("walletAddr").textContent
+    );
+
+    const b = document.getElementById("copyBtn");
+    b.textContent = "✓";
+    setTimeout(() => b.textContent = "⎘", 1500);
+  };
+
+});
+</script>
+{% endblock %}

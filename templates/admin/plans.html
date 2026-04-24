@@ -1,0 +1,70 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Plans — ZURI Admin{% endblock %}
+{% block page_title %}Mining Plans{% endblock %}
+{% block content %}
+
+<div class="admin-page-title">Mining Plan Configuration</div>
+<p class="admin-page-sub">All 5 active investment plans (edit PLANS_DATA in app.py to modify)</p>
+
+<div class="admin-section">
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr><th>Plan</th><th>Name</th><th>Investment (USD)</th><th>Return (USD)</th><th>Duration</th><th>ROI</th><th>Profit</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for p in plans %}
+        <tr>
+          <td class="mono text-muted">#0{{ p.id }}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;font-weight:700;">
+              {{ '🌱' if p.id==1 else '📈' if p.id==2 else '⚡' if p.id==3 else '💎' if p.id==4 else '👑' }}
+              {{ p.name }}
+            </div>
+          </td>
+          <td class="mono">${{ "%.2f"|format(p.cost) }}</td>
+          <td class="mono text-green">${{ "%.2f"|format(p['return']) }}</td>
+          <td>{{ p.days }} days</td>
+          <td>
+            <div class="roi-display">
+              <span class="roi-num">{{ p.roi }}%</span>
+              <div class="roi-bar-wrap"><div class="roi-bar-fill" style="width:{{ [p.roi / 2, 100] | min }}%;"></div></div>
+            </div>
+          </td>
+          <td class="mono text-green">+${{ "%.2f"|format(p['return'] - p.cost) }}</td>
+          <td><span class="txn-status status-active">Active</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="admin-note">
+    <span>ℹ️</span>
+    Plan parameters are defined in <code>PLANS_DATA</code> inside <code>app.py</code>. Restart the server after editing.
+  </div>
+</div>
+
+<!-- Visual cards -->
+<div class="admin-section">
+  <div class="admin-section-header">
+    <span class="admin-section-title">Plan Cards Preview</span>
+  </div>
+  <div class="plan-admin-grid">
+    {% for p in plans %}
+    <div class="plan-admin-card">
+      <div class="pac-top">
+        <span class="pac-icon">{{ '🌱' if p.id==1 else '📈' if p.id==2 else '⚡' if p.id==3 else '💎' if p.id==4 else '👑' }}</span>
+        <span class="pac-name">{{ p.name }}</span>
+        <span class="pac-roi">{{ p.roi }}%</span>
+      </div>
+      <div class="pac-nums">
+        <div><span class="pac-label">Invest</span><span class="pac-val">${{ p.cost }}</span></div>
+        <div class="pac-arrow">→</div>
+        <div><span class="pac-label">Return</span><span class="pac-val text-green">${{ p['return'] }}</span></div>
+      </div>
+      <div class="pac-footer">{{ p.days }} days · Profit +${{ p['return'] - p.cost }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

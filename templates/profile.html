@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Profile — ZURI{% endblock %}
+{% block content %}
+<!-- Profile header card -->
+<div class="profile-header">
+  <div class="profile-avatar" style="background:{{ user.avatar_color }}">{{ user.name[0].upper() }}</div>
+  <div style="flex:1;min-width:0;">
+    <div class="profile-name">{{ user.name }}</div>
+    <div class="profile-email">{{ user.email }}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
+      {% if user.is_admin %}
+      <span class="profile-badge" style="background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.2);">👑 Admin</span>
+      {% else %}
+      <span class="profile-badge" style="background:rgba(99,102,241,.12);color:#818cf8;border:1px solid rgba(99,102,241,.2);">Member</span>
+      {% endif %}
+      {% if user.is_active %}
+      <span class="profile-badge" style="background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.2);">● Active</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Portfolio summary -->
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;">
+  <div class="card" style="padding:14px;text-align:center;">
+    <div style="font-size:1.1rem;font-weight:900;background:linear-gradient(135deg,#6366f1,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${{ "%.2f"|format(user.total_usd_balance) }}</div>
+    <div style="font-size:.65rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;">Balance</div>
+  </div>
+  <div class="card" style="padding:14px;text-align:center;">
+    <div style="font-size:1.1rem;font-weight:900;color:var(--green);">${{ "%.2f"|format(total_deposited) }}</div>
+    <div style="font-size:.65rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;">Deposited</div>
+  </div>
+  <div class="card" style="padding:14px;text-align:center;">
+    <div style="font-size:1.1rem;font-weight:900;color:var(--blue-l);">{{ user.active_plans|length }}</div>
+    <div style="font-size:.65rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;">Plans</div>
+  </div>
+</div>
+
+<!-- Wallet balances -->
+<p class="section-title">Wallet Balances</p>
+<div class="card" style="padding:0 16px;margin-bottom:20px;">
+  {% for w in wallets %}
+  {% set m = crypto_meta.get(w.symbol,{'icon':'◈','name':w.symbol,'color':'#6366f1'}) %}
+  <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+    {% if not loop.last %}<div style="border-bottom:none !important"></div>{% endif %}
+    <div class="crypto-row-icon" style="background:{{ m.color }};width:34px;height:34px;font-size:.88rem;">{{ m.icon }}</div>
+    <div style="flex:1;">
+      <div style="font-size:.88rem;font-weight:700;">{{ w.symbol }}</div>
+      <div style="font-size:.72rem;color:var(--text-3);">{{ m.name }}</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-family:'DM Mono',monospace;font-size:.85rem;font-weight:700;">{{ "%.6f"|format(w.balance) }}</div>
+      <div style="font-size:.72rem;color:var(--text-3);">${{ "%.2f"|format(w.usd_value) }}</div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Edit profile -->
+<p class="section-title">Edit Profile</p>
+<div class="card" style="padding:20px;margin-bottom:16px;">
+  <form method="POST" action="{{ url_for('profile') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="update_profile">
+    <div class="field-group">
+      <label class="field-label">Full Name</label>
+      <input type="text" name="name" class="field-input" value="{{ user.name }}" required>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Phone</label>
+      <div class="phone-row">
+        <input type="text" name="phone_country" class="field-input" value="{{ user.phone_country }}" style="width:80px;flex-shrink:0;">
+        <input type="tel"  name="phone"         class="field-input" value="{{ user.phone }}" placeholder="Phone number">
+      </div>
+    </div>
+    <div class="field-group" style="margin-bottom:0;">
+      <label class="field-label">Email</label>
+      <input type="email" class="field-input" value="{{ user.email }}" disabled style="opacity:.5;">
+    </div>
+    <button type="submit" class="btn btn-primary btn-full" style="margin-top:16px;">Save Changes</button>
+  </form>
+</div>
+
+<!-- Change password -->
+<p class="section-title">Change Password</p>
+<div class="card" style="padding:20px;margin-bottom:16px;">
+  <form method="POST" action="{{ url_for('profile') }}">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="change_password">
+    <div class="field-group">
+      <label class="field-label">Current Password</label>
+      <div class="field-wrap">
+        <input type="password" name="old_password" id="oldPw" class="field-input" required>
+        <button type="button" class="pw-toggle field-suffix" style="right:12px;left:auto;transform:translateY(-50%);" onclick="togglePw('oldPw',this)">👁</button>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">New Password</label>
+      <div class="field-wrap">
+        <input type="password" name="new_password" id="newPw" class="field-input" required minlength="8">
+        <button type="button" class="pw-toggle field-suffix" style="right:12px;left:auto;transform:translateY(-50%);" onclick="togglePw('newPw',this)">👁</button>
+      </div>
+    </div>
+    <div class="field-group" style="margin-bottom:0;">
+      <label class="field-label">Confirm New Password</label>
+      <input type="password" name="confirm_password" class="field-input" required minlength="8">
+    </div>
+    <button type="submit" class="btn btn-outline btn-full" style="margin-top:16px;">Update Password</button>
+  </form>
+</div>
+
+<!-- Admin link + Logout -->
+{% if user.is_admin %}
+<a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline btn-full" style="margin-bottom:10px;">⚙ Admin Panel</a>
+{% endif %}
+<a href="{{ url_for('logout') }}" class="btn btn-full" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:#f87171;margin-bottom:16px;">⏻ Sign Out</a>
+
+<div style="text-align:center;font-size:.72rem;color:var(--text-3);padding-bottom:8px;">
+  Member since {{ user.created_at.strftime('%B %Y') }} · ID: {{ user.id[:8].upper() }}
+</div>
+{% endblock %}
