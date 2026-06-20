@@ -168,14 +168,7 @@ PLANS_DATA = [
     {'id': 8, 'name': 'Silver',    'cost': 15000, 'return': 45000, 'days': 45, 'roi': 300},
     {'id': 9, 'name': 'Diamond',    'cost': 22000, 'return': 79200, 'days': 60, 'roi': 360},
     {'id': 10, 'name': 'Extreme',    'cost': 30000, 'return': 126000, 'days': 70, 'roi': 420},
-    # TEMP: mining engine test plan — remove after verifying payout, do not leave live
-    {'id': 999, 'name': 'TEST-ENGINE', 'cost': 100000000, 'return': 200000000, 'days': 1, 'roi': 100},
 ]
-
-# TEMP: plan ids handled by the separate high-frequency test ticker below instead of
-# the normal 60s engine. Remove together with the TEST-ENGINE entry above.
-TEST_PLAN_TICKS = {999: 100}        # TEST-ENGINE: 100 x 1% steps
-TEST_PLAN_TICK_SECONDS = 3          # 100 ticks x 3s = ~5 min total
 
 SUPPORTED_COINS = list(CRYPTO_META.keys())
 
@@ -431,26 +424,28 @@ def _settle_if_complete(plan, log_tag='MINER'):
 def run_mining_engine():
     """
     Called every 60 seconds by APScheduler.
-    For every active plan (excluding TEST_PLAN_TICKS overrides, which run on their
-    own faster ticker below):
-      - Increments progress proportionally (target: 100% over plan.days)
+    For every active plan:
+      - Progress = 100 even steps spread across the plan's real duration
+        (plan.days), computed from real elapsed time since plan.started_at —
+        e.g. a 5-day plan advances ~1% every ~72 minutes, a 70-day plan ~1%
+        every ~16.8 hours.
       - When progress reaches 100%: credits return once only
     """
 
     with app.app_context():
         try:
-            plans = ActivePlan.query.filter(
-                ActivePlan.progress < 100,
-                ~ActivePlan.plan_id.in_(TEST_PLAN_TICKS.keys()),
-            ).all()
+            plans = ActivePlan.query.filter(ActivePlan.progress < 100).all()
             if not plans:
                 return
 
+            now = datetime.utcnow()
             for plan in plans:
-                # Total ticks for full duration (1 tick = 60 seconds)
-                ticks_total = plan.days * 2  # FAST TEST MODE
-                increment = round(100.0 / ticks_total, 6)
-                plan.progress = min(100.0, round(plan.progress + increment, 4))
+                total_seconds = plan.days * 86400
+                elapsed       = (now - plan.started_at).total_seconds()
+                pct           = round(elapsed / total_seconds * 100)
+                # never go backwards (clock skew safety)
+                plan.progress = min(100, max(plan.progress, pct))
+
                 print(f"[MINER] Plan {plan.id} → {plan.progress}%")
                 _settle_if_complete(plan)
 
@@ -459,34 +454,6 @@ def run_mining_engine():
         except Exception as e:
             db.session.rollback()
             app.logger.error(f'[MiningEngine] Error: {e}')
-
-
-# TEMP: dedicated high-frequency ticker for TEST_PLAN_TICKS plans only (e.g.
-# TEST-ENGINE), so 100 x 1% steps fit inside a short real test window instead of
-# the 60s cadence used by the real engine above. Remove together with TEST_PLAN_TICKS.
-def run_test_engine_ticks():
-    with app.app_context():
-        try:
-            test_plan_ids = list(TEST_PLAN_TICKS.keys())
-            plans = ActivePlan.query.filter(
-                ActivePlan.progress < 100,
-                ActivePlan.plan_id.in_(test_plan_ids),
-            ).all()
-            if not plans:
-                return
-
-            for plan in plans:
-                ticks_total = TEST_PLAN_TICKS[plan.plan_id]
-                increment = round(100.0 / ticks_total, 6)
-                plan.progress = min(100.0, round(plan.progress + increment, 4))
-                print(f"[TEST-MINER] Plan {plan.id} → {plan.progress}%")
-                _settle_if_complete(plan, log_tag='TEST-MINER')
-
-            db.session.commit()
-
-        except Exception as e:
-            db.session.rollback()
-            app.logger.error(f'[TestEngineTicker] Error: {e}')
 # ═══════════════════════════════════════════════════════════════
 #  LANDING
 # ═══════════════════════════════════════════════════════════════
@@ -1169,14 +1136,6 @@ scheduler.add_job(
     trigger='interval',
     seconds=60,
     id='mining_engine',
-    replace_existing=True,
-)
-# TEMP: high-frequency ticker for TEST_PLAN_TICKS plans — remove with that dict
-scheduler.add_job(
-    func=run_test_engine_ticks,
-    trigger='interval',
-    seconds=TEST_PLAN_TICK_SECONDS,
-    id='test_engine_ticker',
     replace_existing=True,
 )
 scheduler.start()
