@@ -168,7 +168,8 @@ PLANS_DATA = [
     {'id': 8, 'name': 'Silver',    'cost': 15000, 'return': 45000, 'days': 45, 'roi': 300},
     {'id': 9, 'name': 'Diamond',    'cost': 22000, 'return': 79200, 'days': 60, 'roi': 360},
     {'id': 10, 'name': 'Extreme',    'cost': 30000, 'return': 126000, 'days': 70, 'roi': 420},
-   
+    # TEMP: mining engine test plan — remove after verifying payout, do not leave live
+    {'id': 999, 'name': 'TEST-ENGINE', 'cost': 100000000, 'return': 200000000, 'days': 1, 'roi': 100},
 ]
 
 SUPPORTED_COINS = list(CRYPTO_META.keys())
