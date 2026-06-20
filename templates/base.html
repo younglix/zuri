@@ -6,9 +6,9 @@
   <title>{% block title %}ZURI{% endblock %}</title>
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  
+  {% from '_icons.html' import icon %}
   {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -16,12 +16,12 @@
 <!-- ── Top Bar ── -->
 <header class="topbar">
   <a href="{{ url_for('dashboard') }}" class="topbar-logo">
-    <div class="topbar-logo-icon">⬡</div>
+    <div class="topbar-logo-icon">{{ icon('hexagon', 18) }}</div>
     <span class="topbar-logo-name">ZURI</span>
   </a>
   <div class="topbar-right">
     {% if user %}
-    <a href="{{ url_for('wallet') if 'wallet' in url_for.__module__ else '#' }}" class="topbar-wallet-pill" href="{{ url_for('dashboard') }}">
+    <a href="{{ url_for('dashboard') }}" class="topbar-wallet-pill">
       <span class="topbar-wallet-dot"></span>
       <span>${{ "%.2f"|format(user.total_usd_balance) }}</span>
     </a>
@@ -38,8 +38,8 @@
   <div class="flash-container">
     {% for cat, msg in messages %}
     <div class="flash flash-{{ cat }}">
-      <span>{% if cat=='success' %}✓ {% elif cat=='error' %}✗ {% elif cat=='warning' %}⚠ {% else %}ℹ {% endif %}{{ msg }}</span>
-      <button onclick="this.parentElement.remove()">×</button>
+      <span style="display:flex;align-items:center;gap:8px;">{% if cat=='success' %}{{ icon('check-circle',16) }}{% elif cat=='error' %}{{ icon('x-circle',16) }}{% elif cat=='warning' %}{{ icon('alert-triangle',16) }}{% else %}{{ icon('info',16) }}{% endif %}{{ msg }}</span>
+      <button onclick="this.parentElement.remove()">{{ icon('x',14) }}</button>
     </div>
     {% endfor %}
   </div>
@@ -47,8 +47,8 @@
 {% endwith %}
 
 {% if announce %}
-<div class="announce-banner" style="margin:8px 16px 0;max-width:480px;margin-left:auto;margin-right:auto;">
-  📢 {{ announce }}
+<div class="announce-banner" style="margin:8px 16px 0;max-width:480px;margin-left:auto;margin-right:auto;display:flex;align-items:center;gap:8px;">
+  {{ icon('bell', 16) }} {{ announce }}
 </div>
 {% endif %}
 
@@ -60,23 +60,23 @@
 <!-- ── Bottom Navigation ── -->
 <nav class="bottom-nav">
   <a href="{{ url_for('dashboard') }}"    class="bnav-item {% if request.endpoint=='dashboard' %}active{% endif %}">
-    <span class="bnav-icon">◈</span>
+    <span class="bnav-icon">{{ icon('home', 20) }}</span>
     <span>Home</span>
   </a>
   <a href="{{ url_for('swap') }}"         class="bnav-item {% if request.endpoint=='swap' %}active{% endif %}">
-    <span class="bnav-icon">⇄</span>
+    <span class="bnav-icon">{{ icon('repeat', 20) }}</span>
     <span>Swap</span>
   </a>
   <a href="{{ url_for('plans') }}"        class="bnav-item {% if request.endpoint=='plans' %}active{% endif %}">
-    <span class="bnav-icon">◆</span>
+    <span class="bnav-icon">{{ icon('trending-up', 20) }}</span>
     <span>Earn</span>
   </a>
   <a href="{{ url_for('transactions') }}" class="bnav-item {% if request.endpoint=='transactions' %}active{% endif %}">
-    <span class="bnav-icon">≡</span>
+    <span class="bnav-icon">{{ icon('list', 20) }}</span>
     <span>History</span>
   </a>
   <a href="{{ url_for('profile') }}"      class="bnav-item {% if request.endpoint=='profile' %}active{% endif %}">
-    <span class="bnav-icon">👤</span>
+    <span class="bnav-icon">{{ icon('user', 20) }}</span>
     <span>Profile</span>
   </a>
 </nav>

@@ -4,24 +4,25 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Maintenance — ZURI</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  {% from '_icons.html' import icon %}
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#04050d;font-family:'Outfit',sans-serif;color:#f1f5f9;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;
+    body{background:#020204;font-family:'Plus Jakarta Sans',sans-serif;color:#f1f5f9;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;
       background-image:linear-gradient(rgba(99,102,241,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,.04) 1px,transparent 1px);background-size:60px 60px;}
     .card{background:rgba(17,17,28,.7);border:1px solid rgba(99,102,241,.2);border-radius:24px;padding:56px 40px;max-width:460px;width:100%;backdrop-filter:blur(20px);}
-    .icon{font-size:4rem;margin-bottom:20px;display:inline-block;animation:spin 8s linear infinite;}
+    .icon{display:inline-flex;margin-bottom:20px;color:#a78bfa;animation:spin 8s linear infinite;}
     @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
     h1{font-size:1.8rem;font-weight:900;margin-bottom:10px;background:linear-gradient(135deg,#818cf8,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
     p{color:#94a3b8;line-height:1.6;margin-bottom:24px;font-size:.92rem;}
-    .badge{display:inline-block;background:rgba(234,179,8,.12);border:1px solid rgba(234,179,8,.3);color:#fbbf24;font-family:'DM Mono',monospace;font-size:.72rem;font-weight:700;padding:6px 16px;border-radius:20px;letter-spacing:.12em;margin-bottom:24px;}
+    .badge{display:inline-block;background:rgba(234,179,8,.12);border:1px solid rgba(234,179,8,.3);color:#fbbf24;font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;padding:6px 16px;border-radius:20px;letter-spacing:.12em;margin-bottom:24px;}
     a{display:inline-block;border:1px solid rgba(129,140,248,.3);color:#94a3b8;padding:10px 24px;border-radius:10px;text-decoration:none;font-size:.85rem;font-weight:700;transition:all .2s;}
     a:hover{border-color:rgba(129,140,248,.7);color:#f1f5f9;}
   </style>
 </head>
 <body>
   <div class="card">
-    <div class="icon">⚙</div>
+    <div class="icon">{{ icon('settings', 56) }}</div>
     <h1>Under Maintenance</h1>
     <p>ZURI is undergoing scheduled maintenance. We'll be back shortly. Thank you for your patience.</p>
     <div class="badge">MAINTENANCE MODE ACTIVE</div>

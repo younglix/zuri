@@ -10,9 +10,10 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  {% from '_icons.html' import icon %}
   <style>
-    body{background:#03040e;font-family:'Outfit',sans-serif;color:#f1f5f9;overflow-x:hidden;}
+    body{background:#020204;font-family:'Plus Jakarta Sans',sans-serif;color:#f1f5f9;overflow-x:hidden;}
     .grad{background:linear-gradient(135deg,#818cf8,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
     .grad-warm{background:linear-gradient(135deg,#f1f5f9,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
     .glass{background:rgba(17,17,28,.55);border:1px solid rgba(99,102,241,.14);backdrop-filter:blur(18px);}
@@ -40,7 +41,7 @@
     .animate-float-delay{animation:float 9s ease-in-out -3s infinite;}
     .animate-slide-up{animation:slideUp .7s cubic-bezier(.22,1,.36,1) both;}
     .marquee{animation:marquee 30s linear infinite;}
-    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#03040e}::-webkit-scrollbar-thumb{background:rgba(99,102,241,.3);border-radius:4px}
+    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#020204}::-webkit-scrollbar-thumb{background:rgba(99,102,241,.3);border-radius:4px}
     .faq-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}
     .faq-body.open{max-height:200px;}
   </style>
@@ -51,7 +52,7 @@
 <nav class="nav-blur fixed top-0 inset-x-0 z-50 border-b border-white/5">
   <div class="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
     <a href="/" class="flex items-center gap-2.5">
-      <div class="w-8 h-8 rounded-lg btn-p flex items-center justify-center text-white font-black text-sm shadow-lg">⬡</div>
+      <div class="w-8 h-8 rounded-lg btn-p flex items-center justify-center text-white shadow-lg">{{ icon('hexagon', 16) }}</div>
       <span class="text-xl font-extrabold tracking-tight">ZURI</span>
     </a>
     <div class="hidden md:flex items-center gap-7 text-sm text-slate-400">
@@ -167,19 +168,19 @@
   <div class="blob w-[400px] h-[400px] bg-indigo-600/10 top-0 right-0"></div>
   <div class="max-w-6xl mx-auto px-5">
     <div class="text-center mb-14 reveal">
-      <div class="inline-flex items-center gap-2 badge rounded-full px-4 py-1.5 text-xs font-bold text-indigo-400 mb-5">✦ Everything you need</div>
+      <div class="inline-flex items-center gap-2 badge rounded-full px-4 py-1.5 text-xs font-bold text-indigo-400 mb-5">Everything you need</div>
       <h2 class="text-4xl md:text-5xl font-black mb-4 grad-warm">One wallet.<br/>Infinite potential.</h2>
       <p class="text-slate-400 text-lg max-w-xl mx-auto">Deposit any crypto, swap instantly, run mining plans, withdraw — all in one mobile-first dashboard.</p>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-      {% for icon, title, color, desc in [
-        ('⬇️','Instant Deposits','rgba(99,102,241,.14)','Deposit BTC, ETH, USDT, BNB, SOL, XRP, DOGE, TRX, ADA, MATIC instantly. Balance reflects the second you confirm.'),
-        ('⇄','Live Crypto Swap','rgba(6,182,212,.1)','Convert between 10 cryptocurrencies at live market rates with a 0.1% fee. No limits.'),
-        ('◆','Mining Plans','rgba(139,92,246,.12)','5 investment tiers returning up to 200% ROI. Your capital compounds from day one.'),
-        ('🔒','Bank-Grade Security','rgba(16,185,129,.1)','CSRF protection, PBKDF2 password hashing, CSP headers, session security, SQL injection prevention.')
+      {% for ic, title, color, desc in [
+        ('arrow-down-circle','Instant Deposits','rgba(99,102,241,.14)','Deposit BTC, ETH, USDT, BNB, SOL, XRP, DOGE, TRX, ADA, MATIC instantly. Balance reflects the second you confirm.'),
+        ('repeat','Live Crypto Swap','rgba(6,182,212,.1)','Convert between 10 cryptocurrencies at live market rates with a 0.1% fee. No limits.'),
+        ('layers','Mining Plans','rgba(139,92,246,.12)','5 investment tiers returning up to 200% ROI. Your capital compounds from day one.'),
+        ('shield','Bank-Grade Security','rgba(16,185,129,.1)','CSRF protection, PBKDF2 password hashing, CSP headers, session security, SQL injection prevention.')
       ] %}
       <div class="glass rounded-2xl p-6 card-lift reveal group cursor-default" style="transition-delay:{{ loop.index0 * 0.08 }}s">
-        <div class="w-12 h-12 rounded-xl mb-5 flex items-center justify-center text-2xl" style="background:{{ color }};border:1px solid {{ color.replace(',.1',',.25').replace(',.12',',.25').replace(',.14',',.25') }}">{{ icon }}</div>
+        <div class="w-12 h-12 rounded-xl mb-5 flex items-center justify-center" style="background:{{ color }};border:1px solid {{ color.replace(',.1',',.25').replace(',.12',',.25').replace(',.14',',.25') }}">{{ icon(ic, 22) }}</div>
         <h3 class="text-base font-bold mb-2">{{ title }}</h3>
         <p class="text-sm text-slate-400 leading-relaxed">{{ desc }}</p>
       </div>
@@ -188,7 +189,7 @@
     <!-- Wide banner -->
     <div class="mt-5 reveal">
       <div class="glass-hi rounded-2xl p-7 flex flex-col sm:flex-row items-center gap-6">
-        <div class="text-4xl animate-float flex-shrink-0">📱</div>
+        <div class="animate-float flex-shrink-0">{{ icon('smartphone', 40) }}</div>
         <div class="flex-1">
           <div class="flex items-center gap-2 mb-1.5 flex-wrap">
             <span class="badge rounded-full px-3 py-0.5 text-xs font-bold text-cyan-400">NEW</span>
@@ -206,20 +207,20 @@
 <section id="howitworks" class="relative py-24 bg-[#07091a]/50 border-y border-white/5 overflow-hidden">
   <div class="max-w-5xl mx-auto px-5">
     <div class="text-center mb-16 reveal">
-      <div class="inline-flex items-center gap-2 badge rounded-full px-4 py-1.5 text-xs font-bold text-indigo-400 mb-5">✦ How it works</div>
+      <div class="inline-flex items-center gap-2 badge rounded-full px-4 py-1.5 text-xs font-bold text-indigo-400 mb-5">How it works</div>
       <h2 class="text-4xl md:text-5xl font-black mb-4">Up and running<br/><span class="grad">in three steps.</span></h2>
       <p class="text-slate-400 text-lg max-w-lg mx-auto">Every barrier between you and your first investment has been removed.</p>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-10 relative">
       <div class="hidden md:block absolute top-9 left-[33%] right-[33%] h-px bg-gradient-to-r from-indigo-400/20 via-violet-400/30 to-indigo-400/20"></div>
-      {% for num, icon, title, desc, code in [
-        ('1','⬇️','Deposit crypto','Choose your coin, enter an amount, confirm. Your ZURI balance updates instantly — no minimums, no delays.','+ 0.5 ETH deposited ✓'),
-        ('2','◆','Pick a mining plan','Select from 5 tiers starting at $100. Your crypto is put to work immediately and earns guaranteed returns.','Plan: Elite · $2,000 invested ◆'),
-        ('3','⬆','Withdraw any time','Send your balance back as crypto to any external wallet address. Enter address, select network, done.','"To: 0x4f3a…" · Processing ⏳'),
+      {% for num, ic, title, desc, code in [
+        ('1','arrow-down-circle','Deposit crypto','Choose your coin, enter an amount, confirm. Your ZURI balance updates instantly — no minimums, no delays.','+ 0.5 ETH deposited'),
+        ('2','layers','Pick a mining plan','Select from 5 tiers starting at $100. Your crypto is put to work immediately and earns guaranteed returns.','Plan: Elite · $2,000 invested'),
+        ('3','arrow-up-circle','Withdraw any time','Send your balance back as crypto to any external wallet address. Enter address, select network, done.','"To: 0x4f3a…" · Processing'),
       ] %}
       <div class="reveal text-center" style="transition-delay:{{ loop.index0 * 0.14 }}s">
-        <div class="relative inline-flex w-20 h-20 rounded-2xl glass-hi items-center justify-center text-3xl mb-5">
-          {{ icon }}
+        <div class="relative inline-flex w-20 h-20 rounded-2xl glass-hi items-center justify-center mb-5">
+          {{ icon(ic, 30) }}
           <span class="absolute -top-2 -right-2 w-6 h-6 rounded-full btn-p text-white text-xs font-black flex items-center justify-center">{{ num }}</span>
         </div>
         <h3 class="text-xl font-bold mb-3">{{ title }}</h3>
@@ -230,9 +231,9 @@
     </div>
     <!-- Trust chips -->
     <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 reveal">
-      {% for icon, title, sub in [('⚡','Instant Credit','Balance updates the second you confirm'),('🌐','10 Cryptocurrencies','BTC ETH USDT BNB SOL XRP DOGE TRX ADA MATIC'),('⇄','Live Swap','Convert at real market rates instantly'),('📋','Full History','Every deposit, swap and plan logged')] %}
+      {% for ic, title, sub in [('zap','Instant Credit','Balance updates the second you confirm'),('globe','10 Cryptocurrencies','BTC ETH USDT BNB SOL XRP DOGE TRX ADA MATIC'),('repeat','Live Swap','Convert at real market rates instantly'),('clipboard','Full History','Every deposit, swap and plan logged')] %}
       <div class="glass rounded-xl p-5 text-center card-lift">
-        <div class="text-xl mb-2">{{ icon }}</div>
+        <div class="mb-2 flex justify-center text-indigo-400">{{ icon(ic, 22) }}</div>
         <div class="text-sm font-bold mb-1">{{ title }}</div>
         <div class="text-xs text-slate-500">{{ sub }}</div>
       </div>
@@ -247,16 +248,16 @@
   <div class="blob w-[300px] h-[300px] bg-indigo-600/10 bottom-0 left-0"></div>
   <div class="max-w-6xl mx-auto px-5">
     <div class="text-center mb-14 reveal">
-      <div class="inline-flex items-center gap-2 badge rounded-full px-4 py-1.5 text-xs font-bold text-indigo-400 mb-5">✦ Mining plans</div>
+      <div class="inline-flex items-center gap-2 badge rounded-full px-4 py-1.5 text-xs font-bold text-indigo-400 mb-5">Mining plans</div>
       <h2 class="text-4xl md:text-5xl font-black mb-4">Put your crypto<br/><span class="grad">to work.</span></h2>
       <p class="text-slate-400 text-lg max-w-lg mx-auto">Five investment tiers. Transparent returns. Your capital starts growing from day one.</p>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
       {% for p in plans %}
       <div class="glass rounded-2xl p-5 card-lift reveal flex flex-col gap-3 relative overflow-hidden {% if p.id==3 %}border-indigo-500/40{% endif %}" style="transition-delay:{{ (loop.index0)*0.07 }}s;border-top:2px solid {% if p.id==1 %}#10b981{% elif p.id==2 %}#6366f1{% elif p.id==3 %}#a78bfa{% elif p.id==4 %}#818cf8{% else %}#fbbf24{% endif %}">
-        {% if p.id==3 %}<div class="absolute top-2.5 right-2.5 text-[9px] font-black badge rounded-full px-2 py-0.5 text-indigo-400">🔥 POPULAR</div>{% endif %}
+        {% if p.id==3 %}<div class="absolute top-2.5 right-2.5 text-[9px] font-black badge rounded-full px-2 py-0.5 text-indigo-400">POPULAR</div>{% endif %}
         <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest font-mono">Plan 0{{ p.id }}</div>
-        <div class="text-2xl">{{ '🌱' if p.id==1 else '📈' if p.id==2 else '⚡' if p.id==3 else '💎' if p.id==4 else '👑' }}</div>
+        <div class="text-indigo-400">{{ icon('circle' if p.id==1 else 'trending-up' if p.id==2 else 'zap' if p.id==3 else 'star' if p.id==4 else 'award', 26) }}</div>
         <div class="font-black text-base">{{ p.name }}</div>
         <div>
           <div class="text-[10px] text-slate-500 uppercase tracking-wider mb-0.5">Invest</div>
@@ -283,7 +284,7 @@
 <section class="relative py-20 bg-[#07091a]/50 border-y border-white/5">
   <div class="max-w-5xl mx-auto px-5">
     <div class="text-center mb-12 reveal">
-      <div class="inline-flex items-center gap-2 badge rounded-full px-4 py-1.5 text-xs font-bold text-indigo-400 mb-5">✦ Reviews</div>
+      <div class="inline-flex items-center gap-2 badge rounded-full px-4 py-1.5 text-xs font-bold text-indigo-400 mb-5">Reviews</div>
       <h2 class="text-4xl font-black">Real investors.<br/><span class="grad">Real results.</span></h2>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -312,7 +313,7 @@
 <section id="faq" class="relative py-24">
   <div class="max-w-2xl mx-auto px-5">
     <div class="text-center mb-14 reveal">
-      <div class="inline-flex items-center gap-2 badge rounded-full px-4 py-1.5 text-xs font-bold text-indigo-400 mb-5">✦ FAQ</div>
+      <div class="inline-flex items-center gap-2 badge rounded-full px-4 py-1.5 text-xs font-bold text-indigo-400 mb-5">FAQ</div>
       <h2 class="text-4xl md:text-5xl font-black">Got questions?<br/><span class="grad">We answer.</span></h2>
     </div>
     <div class="space-y-3">
@@ -343,7 +344,7 @@
   <div class="blob w-[600px] h-[350px] bg-indigo-600/16 top-0 left-1/2 -translate-x-1/2"></div>
   <div class="max-w-3xl mx-auto px-5 text-center relative z-10 reveal">
     <div class="glass-hi rounded-3xl p-12 md:p-16" style="box-shadow:0 40px 100px rgba(0,0,0,.5),0 0 80px rgba(99,102,241,.1)">
-      <div class="text-5xl mb-5 animate-float">⬡</div>
+      <div class="mb-5 flex justify-center text-indigo-300 animate-float">{{ icon('hexagon', 48) }}</div>
       <h2 class="text-4xl md:text-5xl font-black mb-4">Your wealth.<br/><span class="grad">Launched.</span></h2>
       <p class="text-slate-400 text-lg max-w-md mx-auto mb-10">Join thousands who trust ZURI to grow their crypto portfolio — simply, securely, beautifully.</p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
@@ -361,7 +362,7 @@
     <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-10">
       <div class="col-span-2 md:col-span-1">
         <div class="flex items-center gap-2 mb-3">
-          <div class="w-7 h-7 rounded-lg btn-p flex items-center justify-center text-white font-black text-xs">⬡</div>
+          <div class="w-7 h-7 rounded-lg btn-p flex items-center justify-center text-white">{{ icon('hexagon', 14) }}</div>
           <span class="text-lg font-extrabold">ZURI</span>
         </div>
         <p class="text-xs text-slate-500 leading-relaxed mb-3">Next-generation crypto investment wallet. Beautifully simple. Simulation only.</p>

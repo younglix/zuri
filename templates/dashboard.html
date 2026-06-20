@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Dashboard — ZURI{% endblock %}
-
+{% from '_icons.html' import icon %}
 {% block content %}
 <!-- Balance hero -->
 <div class="balance-hero">
@@ -11,31 +11,31 @@
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px;">
     <span class="balance-hero-change change-up" id="balanceChange">Live prices</span>
     {% if user.is_admin %}
-    <a href="{{ url_for('admin_dashboard') }}" style="font-size:.72rem;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#f87171;padding:3px 10px;border-radius:10px;text-decoration:none;font-weight:700;">⚙ Admin Panel</a>
+    <a href="{{ url_for('admin_dashboard') }}" style="font-size:.72rem;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#f87171;padding:3px 10px;border-radius:10px;text-decoration:none;font-weight:700;display:inline-flex;align-items:center;gap:5px;">{{ icon('settings',13) }} Admin Panel</a>
     {% endif %}
   </div>
   <div class="balance-actions">
-    <a href="{{ url_for('deposit') }}"  class="btn btn-primary btn-sm">⬇ Deposit</a>
-    <a href="{{ url_for('withdraw') }}" class="btn btn-outline btn-sm">⬆ Withdraw</a>
+    <a href="{{ url_for('deposit') }}"  class="btn btn-primary btn-sm">{{ icon('arrow-down-circle',16) }} Deposit</a>
+    <a href="{{ url_for('withdraw') }}" class="btn btn-outline btn-sm">{{ icon('arrow-up-circle',16) }} Withdraw</a>
   </div>
 </div>
 
 <!-- Quick action buttons -->
 <div class="action-btn-group">
   <a href="{{ url_for('deposit') }}"  class="action-btn">
-    <div class="action-btn-icon">⬇️</div>
+    <div class="action-btn-icon">{{ icon('arrow-down-circle',22) }}</div>
     <span class="action-btn-label">Fund</span>
   </a>
   <a href="{{ url_for('withdraw') }}" class="action-btn">
-    <div class="action-btn-icon">⬆️</div>
+    <div class="action-btn-icon">{{ icon('arrow-up-circle',22) }}</div>
     <span class="action-btn-label">Send</span>
   </a>
   <a href="{{ url_for('swap') }}"     class="action-btn">
-    <div class="action-btn-icon">⇄</div>
+    <div class="action-btn-icon">{{ icon('repeat',22) }}</div>
     <span class="action-btn-label">Swap</span>
   </a>
   <a href="{{ url_for('plans') }}"    class="action-btn">
-    <div class="action-btn-icon">📈</div>
+    <div class="action-btn-icon">{{ icon('trending-up',22) }}</div>
     <span class="action-btn-label">Earn</span>
   </a>
 </div>
@@ -73,7 +73,7 @@
     {% endfor %}
   {% else %}
   <div class="empty-state">
-    <div class="empty-icon">🪙</div>
+    <div class="empty-icon">{{ icon('dollar-sign',40) }}</div>
     <p>No assets yet. <a href="{{ url_for('deposit') }}" style="color:#818cf8">Make a deposit →</a></p>
   </div>
   {% endif %}
@@ -96,12 +96,12 @@
       <div style="height:4px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;">
         <div style="height:100%;width:{{ plan.progress }}%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:4px;transition:width .5s;"></div>
       </div>
-      <div style="font-size:.72rem;color:var(--text-3);margin-top:5px;font-family:'DM Mono',monospace;">Started {{ plan.started_at.strftime('%b %d, %Y') }}</div>
+      <div style="font-size:.72rem;color:var(--text-3);margin-top:5px;font-family:'JetBrains Mono',monospace;">Started {{ plan.started_at.strftime('%b %d, %Y') }}</div>
     </div>
     {% endfor %}
   {% else %}
   <div class="empty-state">
-    <div class="empty-icon">◆</div>
+    <div class="empty-icon">{{ icon('layers',40) }}</div>
     <p>No active plans. <a href="{{ url_for('plans') }}" style="color:#818cf8">Browse plans →</a></p>
   </div>
   {% endif %}
@@ -114,11 +114,11 @@
     {% set meta = crypto_meta.get(t.currency, {'color':'#6366f1','icon':'◈'}) %}
     <div class="txn-row">
       <div class="txn-icon txn-{{ t.txn_type|lower|replace(' ','_') }}">
-        {% if t.txn_type == 'Deposit' %}⬇
-        {% elif t.txn_type == 'Withdrawal' %}⬆
-        {% elif t.txn_type == 'Investment' %}◆
-        {% elif t.txn_type == 'Swap' %}⇄
-        {% else %}✦{% endif %}
+        {% if t.txn_type == 'Deposit' %}{{ icon('arrow-down-circle',18) }}
+        {% elif t.txn_type == 'Withdrawal' %}{{ icon('arrow-up-circle',18) }}
+        {% elif t.txn_type == 'Investment' %}{{ icon('layers',18) }}
+        {% elif t.txn_type == 'Swap' %}{{ icon('repeat',18) }}
+        {% else %}{{ icon('star',18) }}{% endif %}
       </div>
       <div class="txn-info">
         <div class="txn-type">{{ t.txn_type }}{% if t.txn_type=='Swap' and t.to_currency %} → {{ t.to_currency }}{% endif %}</div>
@@ -137,7 +137,7 @@
     </div>
   {% else %}
   <div class="empty-state">
-    <div class="empty-icon">≡</div>
+    <div class="empty-icon">{{ icon('list',40) }}</div>
     <p>No transactions yet.</p>
   </div>
   {% endif %}

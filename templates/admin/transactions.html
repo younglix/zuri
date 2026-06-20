@@ -1,15 +1,11 @@
-{% extends "base.html" %}
-{% block title %}Transaction History — ZURI{% endblock %}
+{% extends "admin/base_admin.html" %}
+{% block title %}Transactions — ZURI Admin{% endblock %}
+{% block page_title %}Transactions{% endblock %}
+{% from '_icons.html' import icon %}
 {% block content %}
 
-
-
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-  <div>
-    <h1 class="page-title">History</h1>
-    <p class="page-sub">{{ transactions|length }} total transactions</p>
-  </div>
-</div>
+<div class="admin-page-title">Transaction History</div>
+<p class="admin-page-sub">{{ transactions|length }} total transactions across all users</p>
 
 <div class="card" style="overflow:hidden;">
   <!-- filter tabs -->
@@ -24,11 +20,11 @@
       {% for t in transactions %}
       <div class="txn-row" data-type="{{ t.txn_type|lower }}">
         <div class="txn-icon txn-{{ t.txn_type|lower|replace(' ','_') }}">
-          {% if t.txn_type=='Deposit' %}⬇
-          {% elif t.txn_type=='Withdrawal' %}⬆
-          {% elif t.txn_type=='Investment' %}◆
-          {% elif t.txn_type=='Swap' %}⇄
-          {% else %}✦{% endif %}
+          {% if t.txn_type=='Deposit' %}{{ icon('arrow-down-circle',18) }}
+          {% elif t.txn_type=='Withdrawal' %}{{ icon('arrow-up-circle',18) }}
+          {% elif t.txn_type=='Investment' %}{{ icon('layers',18) }}
+          {% elif t.txn_type=='Swap' %}{{ icon('repeat',18) }}
+          {% else %}{{ icon('star',18) }}{% endif %}
         </div>
         <div class="txn-info">
           <div class="txn-type">
@@ -51,18 +47,17 @@
 
           <span class="txn-status status-{{ t.status|lower }}">{{ t.status }}</span>
 
-          <!-- ✅ Actions (equivalent to new <td>) -->
           {% if t.status == 'Processing' and t.txn_type in ['Deposit', 'Withdrawal'] %}
           <div class="action-btns" style="margin-top:6px;">
             <button class="action-btn-sm"
-                    style="color:var(--green);border-color:rgba(16,185,129,.3);"
+                    style="color:var(--green);border-color:rgba(16,185,129,.3);display:inline-flex;align-items:center;gap:4px;"
                     onclick="approveTxn('{{ t.id }}')" id="approve-{{ t.id }}">
-              ✓ Approve
+              {{ icon('check',13) }} Approve
             </button>
             <button class="action-btn-sm"
-                    style="color:var(--red);border-color:rgba(239,68,68,.3);"
+                    style="color:var(--red);border-color:rgba(239,68,68,.3);display:inline-flex;align-items:center;gap:4px;"
                     onclick="declineTxn('{{ t.id }}')" id="decline-{{ t.id }}">
-              ✗ Decline
+              {{ icon('x',13) }} Decline
             </button>
           </div>
           {% else %}
@@ -73,8 +68,8 @@
       {% endfor %}
     {% else %}
     <div class="empty-state">
-      <div class="empty-icon">≡</div>
-      <p>No transactions yet. <a href="{{ url_for('deposit') }}" style="color:#818cf8">Make a deposit →</a></p>
+      <div class="empty-icon">{{ icon('list',40) }}</div>
+      <p>No transactions yet.</p>
     </div>
     {% endif %}
   </div>
@@ -131,7 +126,7 @@ function showToast(msg, type) {
   const t = document.createElement('div');
   t.className = `flash flash-${type}`;
   t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;min-width:220px;';
-  t.innerHTML = `<span>${msg}</span><button onclick="this.parentElement.remove()">×</button>`;
+  t.innerHTML = `<span>${msg}</span><button onclick="this.parentElement.remove()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 3500);
 }

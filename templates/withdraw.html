@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Withdraw — ZURI{% endblock %}
+{% from '_icons.html' import icon %}
 {% block content %}
 <div style="margin-bottom:20px;">
   <h1 class="page-title">Withdraw Crypto</h1>
@@ -26,7 +27,7 @@
   <!-- Available balance pill -->
   <div id="balPill" style="display:none;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;margin-bottom:18px;">
     <span style="font-size:.82rem;color:var(--text-2);">Available</span>
-    <span style="font-family:'DM Mono',monospace;font-size:.88rem;font-weight:700;color:var(--green);" id="availBal">—</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:700;color:var(--green);" id="availBal">—</span>
   </div>
 
   <div class="field-group">
@@ -70,14 +71,14 @@
   </div>
 
   <button type="button" class="btn btn-primary btn-full" id="wBtn" disabled onclick="submitWithdraw()">
-    ⬆ Confirm Withdrawal
+    {{ icon('arrow-up-circle',16) }} Confirm Withdrawal
   </button>
   <p style="text-align:center;font-size:.72rem;color:var(--text-3);margin-top:10px;">Simulation only — no real crypto will be sent</p>
 </div>
 
 <!-- Success state -->
 <div id="wSuccess" style="display:none;text-align:center;padding:20px 0;">
-  <div style="font-size:3.5rem;margin-bottom:16px;">⏳</div>
+  <div style="margin-bottom:16px;display:flex;justify-content:center;color:var(--yellow);">{{ icon('clock',56) }}</div>
   <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:8px;">Withdrawal Submitted</h3>
   <p style="color:var(--text-2);font-size:.88rem;margin-bottom:20px;">Your withdrawal is being <strong>processed</strong>. It will be reflected shortly.</p>
   <div id="wSuccessDetails" style="background:var(--bg-input);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:20px;text-align:left;"></div>
@@ -152,7 +153,7 @@ function submitWithdraw() {
         document.getElementById('wSuccessDetails').innerHTML = `
           <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:.82rem;"><span style="color:var(--text-2)">Amount</span><strong>${parseFloat(amt).toFixed(8)} ${curSym}</strong></div>
           <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:.82rem;"><span style="color:var(--text-2)">Network</span><strong>${net}</strong></div>
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:.82rem;"><span style="color:var(--text-2)">Address</span><strong style="font-size:.72rem;font-family:'DM Mono',monospace;word-break:break-all;">${addr}</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:.82rem;"><span style="color:var(--text-2)">Address</span><strong style="font-size:.72rem;font-family:'JetBrains Mono',monospace;word-break:break-all;">${addr}</strong></div>
           <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.82rem;"><span style="color:var(--text-2)">Status</span><span class="txn-status status-processing">Processing</span></div>
         `;
       } else { showToast(data.error||'Withdrawal failed.','error'); }

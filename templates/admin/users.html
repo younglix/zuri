@@ -1,6 +1,7 @@
 {% extends "admin/base_admin.html" %}
 {% block title %}Users — ZURI Admin{% endblock %}
 {% block page_title %}Users{% endblock %}
+{% from '_icons.html' import icon %}
 {% block content %}
 
 <div class="admin-page-title">User Management</div>
@@ -35,10 +36,10 @@
           </td>
           <td>
             <div class="action-btns">
-              <button class="action-btn-sm" onclick="openAdjust('{{ u.id }}','{{ u.name }}')" title="Adjust balance">💰</button>
+              <button class="action-btn-sm" onclick="openAdjust('{{ u.id }}','{{ u.name }}')" title="Adjust balance" style="display:inline-flex;">{{ icon('dollar-sign',14) }}</button>
               {% if not u.is_admin %}
-              <button class="action-btn-sm" onclick="toggleUser('{{ u.id }}')" id="utoggle-{{ u.id }}" title="Toggle suspend">{{ '🔓' if u.is_active else '🔒' }}</button>
-              <button class="action-btn-sm" onclick="resetUser('{{ u.id }}','{{ u.name }}')" title="Reset wallet" style="color:var(--red);">🗑</button>
+              <button class="action-btn-sm" onclick="toggleUser('{{ u.id }}')" id="utoggle-{{ u.id }}" title="Toggle suspend" style="display:inline-flex;">{{ icon('unlock',14) if u.is_active else icon('lock',14) }}</button>
+              <button class="action-btn-sm" onclick="resetUser('{{ u.id }}','{{ u.name }}')" title="Reset wallet" style="color:var(--red);display:inline-flex;">{{ icon('trash-2',14) }}</button>
               {% endif %}
             </div>
           </td>
@@ -77,10 +78,10 @@
       <label class="field-label">Action</label>
       <div style="display:flex;gap:10px;">
         <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer;flex:1;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:10px;">
-          <input type="radio" name="adjAction" value="add" checked style="accent-color:#6366f1;"> ➕ Add funds
+          <input type="radio" name="adjAction" value="add" checked style="accent-color:#6366f1;"> {{ icon('plus-circle',14) }} Add funds
         </label>
         <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer;flex:1;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:10px;">
-          <input type="radio" name="adjAction" value="deduct" style="accent-color:#ef4444;"> ➖ Deduct
+          <input type="radio" name="adjAction" value="deduct" style="accent-color:#ef4444;"> {{ icon('minus-circle',14) }} Deduct
         </label>
       </div>
     </div>
@@ -134,7 +135,10 @@ function toggleUser(uid) {
         const btn   = document.getElementById('utoggle-' + uid);
         badge.textContent  = d.is_active ? 'Active' : 'Suspended';
         badge.className    = 'txn-status ' + (d.is_active ? 'status-completed' : 'status-failed');
-        btn.textContent    = d.is_active ? '🔓' : '🔒';
+        const lockSvgAttrs = 'width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+        btn.innerHTML = d.is_active
+          ? `<svg ${lockSvgAttrs}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>`
+          : `<svg ${lockSvgAttrs}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
         showToast(d.is_active ? 'User activated.' : 'User suspended.', 'success');
       } else { alert(d.error); }
     });
@@ -156,7 +160,7 @@ function showToast(msg, type) {
   const t = document.createElement('div');
   t.className = `flash flash-${type}`;
   t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;min-width:220px;';
-  t.innerHTML = `<span>${msg}</span><button onclick="this.parentElement.remove()">×</button>`;
+  t.innerHTML = `<span>${msg}</span><button onclick="this.parentElement.remove()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 3500);
 }

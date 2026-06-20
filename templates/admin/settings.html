@@ -1,6 +1,7 @@
 {% extends "admin/base_admin.html" %}
 {% block title %}Settings — ZURI Admin{% endblock %}
 {% block page_title %}Site Settings{% endblock %}
+{% from '_icons.html' import icon %}
 {% block content %}
 
 <div class="admin-page-title">Site Settings</div>
@@ -18,7 +19,7 @@
 
         <div class="settings-row">
           <div class="settings-row-info">
-            <div class="settings-row-title">🔧 Maintenance Mode</div>
+            <div class="settings-row-title" style="display:flex;align-items:center;gap:6px;">{{ icon('settings',14) }} Maintenance Mode</div>
             <div class="settings-row-sub">When ON, only admins can access the app. Users see a maintenance page.</div>
           </div>
           <label class="toggle-switch">
@@ -29,7 +30,7 @@
 
         <div class="settings-row">
           <div class="settings-row-info">
-            <div class="settings-row-title">✅ Allow New Registrations</div>
+            <div class="settings-row-title" style="display:flex;align-items:center;gap:6px;">{{ icon('check-circle',14) }} Allow New Registrations</div>
             <div class="settings-row-sub">When OFF, the sign up page is disabled and new accounts cannot be created.</div>
           </div>
           <label class="toggle-switch">
@@ -62,7 +63,7 @@
 
       <!-- Promotion program -->
       <div class="settings-section">
-        <h3 class="settings-section-title">🎁 Promotion Program</h3>
+        <h3 class="settings-section-title" style="display:flex;align-items:center;gap:6px;">{{ icon('gift',14) }} Promotion Program</h3>
         <p class="settings-section-sub">Enable a promo code and reward new users with a USDT signup bonus.</p>
 
         <div class="settings-row">
@@ -92,7 +93,7 @@
 
       <!-- Announcement -->
       <div class="settings-section">
-        <h3 class="settings-section-title">📢 Platform Announcement</h3>
+        <h3 class="settings-section-title" style="display:flex;align-items:center;gap:6px;">{{ icon('bell',14) }} Platform Announcement</h3>
         <p class="settings-section-sub">Displays a banner on the dashboard for all logged-in users. Leave blank to hide.</p>
         <textarea name="announce_msg" class="settings-textarea" placeholder="Enter announcement message...">{{ settings.announce_msg }}</textarea>
       </div>
@@ -144,16 +145,14 @@
     </div>
 
     <div class="status-card">
-      <h4 class="status-card-title">⚠ Admin Credentials</h4>
+      <h4 class="status-card-title" style="display:flex;align-items:center;gap:6px;">{{ icon('shield',14) }} Admin Account</h4>
       <div class="cred-display">
-        <div class="cred-row"><span>Email:</span><code>admin@zuri.app</code></div>
-        <div class="cred-row"><span>Password:</span><code>admin1234</code></div>
-        <div class="cred-note">Change via Forgot Password in production.</div>
+        <div class="cred-note">Manage admin credentials via Profile → Change Password. Never display passwords in the UI.</div>
       </div>
     </div>
 
     <div class="status-card">
-      <h4 class="status-card-title">🛡 Security</h4>
+      <h4 class="status-card-title" style="display:flex;align-items:center;gap:6px;">{{ icon('shield',14) }} Security</h4>
       <div class="status-items">
         <div class="status-item"><span class="status-item-label">CSRF Protection</span><span class="status-pill pill-green">ON</span></div>
         <div class="status-item"><span class="status-item-label">Security Headers</span><span class="status-pill pill-green">ON</span></div>

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Transaction History — ZURI{% endblock %}
+{% from '_icons.html' import icon %}
 {% block content %}
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
   <div>
@@ -21,11 +22,11 @@
       {% for t in transactions %}
       <div class="txn-row" data-type="{{ t.txn_type|lower }}">
         <div class="txn-icon txn-{{ t.txn_type|lower|replace(' ','_') }}">
-          {% if t.txn_type=='Deposit' %}⬇
-          {% elif t.txn_type=='Withdrawal' %}⬆
-          {% elif t.txn_type=='Investment' %}◆
-          {% elif t.txn_type=='Swap' %}⇄
-          {% else %}✦{% endif %}
+          {% if t.txn_type=='Deposit' %}{{ icon('arrow-down-circle',18) }}
+          {% elif t.txn_type=='Withdrawal' %}{{ icon('arrow-up-circle',18) }}
+          {% elif t.txn_type=='Investment' %}{{ icon('layers',18) }}
+          {% elif t.txn_type=='Swap' %}{{ icon('repeat',18) }}
+          {% else %}{{ icon('star',18) }}{% endif %}
         </div>
         <div class="txn-info">
           <div class="txn-type">
@@ -46,7 +47,7 @@
       {% endfor %}
     {% else %}
     <div class="empty-state">
-      <div class="empty-icon">≡</div>
+      <div class="empty-icon">{{ icon('list',40) }}</div>
       <p>No transactions yet. <a href="{{ url_for('deposit') }}" style="color:#818cf8">Make a deposit →</a></p>
     </div>
     {% endif %}

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Profile — ZURI{% endblock %}
+{% from '_icons.html' import icon %}
 {% block content %}
 <!-- Profile header card -->
 <div class="profile-header">
@@ -9,7 +10,7 @@
     <div class="profile-email">{{ user.email }}</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
       {% if user.is_admin %}
-      <span class="profile-badge" style="background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.2);">👑 Admin</span>
+      <span class="profile-badge" style="background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.2);display:inline-flex;align-items:center;gap:4px;">{{ icon('shield',12) }} Admin</span>
       {% else %}
       <span class="profile-badge" style="background:rgba(99,102,241,.12);color:#818cf8;border:1px solid rgba(99,102,241,.2);">Member</span>
       {% endif %}
@@ -49,7 +50,7 @@
       <div style="font-size:.72rem;color:var(--text-3);">{{ m.name }}</div>
     </div>
     <div style="text-align:right;">
-      <div style="font-family:'DM Mono',monospace;font-size:.85rem;font-weight:700;">{{ "%.6f"|format(w.balance) }}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:700;">{{ "%.6f"|format(w.balance) }}</div>
       <div style="font-size:.72rem;color:var(--text-3);">${{ "%.2f"|format(w.usd_value) }}</div>
     </div>
   </div>
@@ -91,14 +92,14 @@
       <label class="field-label">Current Password</label>
       <div class="field-wrap">
         <input type="password" name="old_password" id="oldPw" class="field-input" required>
-        <button type="button" class="pw-toggle field-suffix" style="right:12px;left:auto;transform:translateY(-50%);" onclick="togglePw('oldPw',this)">👁</button>
+        <button type="button" class="pw-toggle field-suffix" style="right:12px;left:auto;transform:translateY(-50%);" onclick="togglePw('oldPw',this)">{{ icon('eye',16) }}</button>
       </div>
     </div>
     <div class="field-group">
       <label class="field-label">New Password</label>
       <div class="field-wrap">
         <input type="password" name="new_password" id="newPw" class="field-input" required minlength="8">
-        <button type="button" class="pw-toggle field-suffix" style="right:12px;left:auto;transform:translateY(-50%);" onclick="togglePw('newPw',this)">👁</button>
+        <button type="button" class="pw-toggle field-suffix" style="right:12px;left:auto;transform:translateY(-50%);" onclick="togglePw('newPw',this)">{{ icon('eye',16) }}</button>
       </div>
     </div>
     <div class="field-group" style="margin-bottom:0;">
@@ -111,9 +112,9 @@
 
 <!-- Admin link + Logout -->
 {% if user.is_admin %}
-<a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline btn-full" style="margin-bottom:10px;">⚙ Admin Panel</a>
+<a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline btn-full" style="margin-bottom:10px;gap:8px;">{{ icon('settings',16) }} Admin Panel</a>
 {% endif %}
-<a href="{{ url_for('logout') }}" class="btn btn-full" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:#f87171;margin-bottom:16px;">⏻ Sign Out</a>
+<a href="{{ url_for('logout') }}" class="btn btn-full" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:#f87171;margin-bottom:16px;gap:8px;">{{ icon('log-out',16) }} Sign Out</a>
 
 <div style="text-align:center;font-size:.72rem;color:var(--text-3);padding-bottom:8px;">
   Member since {{ user.created_at.strftime('%B %Y') }} · ID: {{ user.id[:8].upper() }}

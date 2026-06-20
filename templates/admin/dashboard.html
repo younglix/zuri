@@ -1,6 +1,7 @@
 {% extends "admin/base_admin.html" %}
 {% block title %}Admin Overview — ZURI{% endblock %}
 {% block page_title %}Platform Overview{% endblock %}
+{% from '_icons.html' import icon %}
 {% block content %}
 
 <div class="admin-page-title">Platform Overview</div>
@@ -9,41 +10,41 @@
 <!-- KPI grid -->
 <div class="admin-stats-grid">
   <div class="admin-stat-card">
-    <div class="astat-icon astat-blue">👥</div>
+    <div class="astat-icon astat-blue">{{ icon('users',18) }}</div>
     <div><p class="astat-label">Total Users</p><p class="astat-value">{{ total_users }}</p></div>
   </div>
   <div class="admin-stat-card">
-    <div class="astat-icon astat-green">💰</div>
+    <div class="astat-icon astat-green">{{ icon('dollar-sign',18) }}</div>
     <div><p class="astat-label">Platform Balance</p><p class="astat-value">${{ "%.2f"|format(total_deposits - total_withdrawals) }}</p></div>
   </div>
   <div class="admin-stat-card">
-    <div class="astat-icon astat-purple">⬇</div>
+    <div class="astat-icon astat-purple">{{ icon('arrow-down-circle',18) }}</div>
     <div><p class="astat-label">Total Deposited</p><p class="astat-value">${{ "%.2f"|format(total_deposits) }}</p></div>
   </div>
   <div class="admin-stat-card">
-    <div class="astat-icon astat-red">⬆</div>
+    <div class="astat-icon astat-red">{{ icon('arrow-up-circle',18) }}</div>
     <div><p class="astat-label">Total Withdrawn</p><p class="astat-value">${{ "%.2f"|format(total_withdrawals) }}</p></div>
   </div>
   <div class="admin-stat-card">
-    <div class="astat-icon astat-orange">◆</div>
+    <div class="astat-icon astat-orange">{{ icon('layers',18) }}</div>
     <div><p class="astat-label">Active Plans</p><p class="astat-value">{{ active_plans_count }}</p></div>
   </div>
   <div class="admin-stat-card">
-    <div class="astat-icon astat-yellow">⚙</div>
+    <div class="astat-icon astat-yellow">{{ icon('settings',18) }}</div>
     <div><p class="astat-label">Maintenance</p><p class="astat-value">{{ 'ON' if settings.maintenance_mode else 'OFF' }}</p></div>
   </div>
 </div>
 
 {% if settings.announce_msg %}
-<div class="admin-announce-preview">📢 <strong>Active Announcement:</strong> {{ settings.announce_msg }}</div>
+<div class="admin-announce-preview" style="display:flex;align-items:center;gap:8px;">{{ icon('bell',15) }} <strong>Active Announcement:</strong> {{ settings.announce_msg }}</div>
 {% endif %}
 
 <!-- Quick actions -->
 <div class="admin-quick-row">
-  <a href="{{ url_for('admin_users') }}"        class="admin-quick-card">👥 Manage Users</a>
-  <a href="{{ url_for('admin_transactions') }}" class="admin-quick-card">≡ All Transactions</a>
-  <a href="{{ url_for('admin_plans') }}"        class="admin-quick-card">◆ Mining Plans</a>
-  <a href="{{ url_for('admin_settings') }}"     class="admin-quick-card">⚙ Site Settings</a>
+  <a href="{{ url_for('admin_users') }}"        class="admin-quick-card">{{ icon('users',16) }} Manage Users</a>
+  <a href="{{ url_for('admin_transactions') }}" class="admin-quick-card">{{ icon('list',16) }} All Transactions</a>
+  <a href="{{ url_for('admin_plans') }}"        class="admin-quick-card">{{ icon('layers',16) }} Mining Plans</a>
+  <a href="{{ url_for('admin_settings') }}"     class="admin-quick-card">{{ icon('settings',16) }} Site Settings</a>
 </div>
 
 <!-- Recent transactions -->

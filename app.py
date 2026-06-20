@@ -515,7 +515,7 @@ def signup():
         db.session.commit()
         ensure_wallets(u.id)
 
-        welcome_message = f'Welcome to ZURI, {name}! 🚀'
+        welcome_message = f'Welcome to ZURI, {name}!'
         if get_setting('promo_enabled', 'false') == 'true':
             active_code = get_setting('promo_code', '').upper().replace(' ', '')
             try:
@@ -575,7 +575,7 @@ def login():
         session['user_name']  = u.name
         session['user_email'] = u.email
         session['is_admin']   = u.is_admin
-        flash(f'Welcome back, {u.name}! 👋', 'success')
+        flash(f'Welcome back, {u.name}!', 'success')
         return redirect(url_for('dashboard'))
 
     return render_template('auth/login.html')

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Mining Plans — ZURI{% endblock %}
-
+{% from '_icons.html' import icon %}
 {% block content %}
 <h1 class="page-title">Mining Plans</h1>
 <p class="page-sub">Activate a plan · earn guaranteed returns</p>
@@ -19,7 +19,7 @@
     </select>
   </div>
   <span class="field-hint">
-    Balance: <span id="payBal" style="font-family:'DM Mono',monospace;"></span>
+    Balance: <span id="payBal" style="font-family:'JetBrains Mono',monospace;"></span>
   </span>
 </div>
 
@@ -28,13 +28,13 @@
   <div class="plan-card {% if p.id==3 %}popular{% endif %}" id="planCard{{ p.id }}">
     
     {% if p.id==3 %}
-    <div class="plan-popular-tag">🔥 Popular</div>
+    <div class="plan-popular-tag">Popular</div>
     {% endif %}
 
     <div class="plan-badge">PLAN 0{{ p.id }}</div>
 
-    <div class="plan-icon">
-      {{ '🌱' if p.id==1 else '📈' if p.id==2 else '⚡' if p.id==3 else '💎' if p.id==4 else '👑' }}
+    <div class="plan-icon" style="display:flex;color:var(--blue-l);">
+      {{ icon('circle' if p.id==1 else 'trending-up' if p.id==2 else 'zap' if p.id==3 else 'star' if p.id==4 else 'award', 24) }}
     </div>
 
     <div style="font-size:.88rem;font-weight:800;">{{ p.name }}</div>
@@ -52,16 +52,15 @@
     </div>
 
     <div class="plan-meta">
-      <span class="plan-days">⏱ {{ p.days }}d</span>
+      <span class="plan-days" style="display:inline-flex;align-items:center;gap:4px;">{{ icon('clock',12) }} {{ p.days }}d</span>
       <span class="plan-roi">{{ p.roi }}% ROI</span>
     </div>
 
     <!-- Cost in crypto -->
-    <div style="font-size:.72rem;color:var(--text-3);text-align:center;font-family:'DM Mono',monospace;" id="planCost{{ p.id }}">
+    <div style="font-size:.72rem;color:var(--text-3);text-align:center;font-family:'JetBrains Mono',monospace;" id="planCost{{ p.id }}">
       ≈ loading…
     </div>
 
-    <!-- ✅ FIXED: pass return into JS -->
     <button class="btn btn-primary btn-full btn-sm"
       style="margin-top:4px;"
       onclick="buyPlan({{ p.id }}, {{ p.cost }}, '{{ p.name }}', {{ p['return'] }})"
@@ -181,7 +180,7 @@ function buyPlan(id, cost, name, ret){
     </div>
     <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:.83rem;">
       <span style="color:var(--text-2)">Cost (${sym})</span>
-      <strong style="font-family:'DM Mono',monospace;">${cryptoCost} ${sym}</strong>
+      <strong style="font-family:'JetBrains Mono',monospace;">${cryptoCost} ${sym}</strong>
     </div>
     <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.83rem;">
       <span style="color:var(--text-2)">Returns</span>
@@ -216,7 +215,7 @@ function confirmPlan(){
       btn.textContent = 'Confirm';
 
       if(d.success){
-        showToast(d.plan_name + ' Plan activated! 🚀','success');
+        showToast(d.plan_name + ' Plan activated!','success');
         setTimeout(()=>location.reload(),1500);
       } else {
         showToast(d.error || 'Failed.','error');

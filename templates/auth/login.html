@@ -1,5 +1,6 @@
 {% extends "auth/base_auth.html" %}
 {% block title %}Sign In — ZURI{% endblock %}
+{% from '_icons.html' import icon %}
 {% block form %}
 <div class="auth-card">
   <div class="auth-card-header">
@@ -19,7 +20,7 @@
       </div>
       <div class="field-wrap" style="margin-top:7px;">
         <input type="password" name="password" id="pwField" class="field-input" placeholder="••••••••" required autocomplete="current-password">
-        <button type="button" class="pw-toggle" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);" onclick="togglePw('pwField',this)">👁</button>
+        <button type="button" class="pw-toggle" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);" onclick="togglePw('pwField',this)">{{ icon('eye',16) }}</button>
       </div>
     </div>
     <button type="submit" class="auth-btn">

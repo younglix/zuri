@@ -6,8 +6,9 @@
   <title>{% block title %}Admin — ZURI{% endblock %}</title>
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% from '_icons.html' import icon %}
 </head>
 <body style="padding:0;padding-bottom:0;padding-top:0;">
 
@@ -15,29 +16,29 @@
   <!-- Sidebar -->
   <nav class="admin-sidebar" id="adminSidebar">
     <div class="admin-logo">
-      <div class="admin-logo-icon">⬡</div>
+      <div class="admin-logo-icon">{{ icon('hexagon', 16) }}</div>
       <div>
         <div class="admin-logo-text">ZURI</div>
         <span class="admin-logo-badge">ADMIN PANEL</span>
       </div>
     </div>
     <ul class="admin-nav">
-      <li><a href="{{ url_for('admin_dashboard') }}"    class="admin-nav-link {% if request.endpoint=='admin_dashboard' %}active{% endif %}">◈ Overview</a></li>
-      <li><a href="{{ url_for('admin_users') }}"        class="admin-nav-link {% if request.endpoint=='admin_users' %}active{% endif %}">👥 Users</a></li>
-      <li><a href="{{ url_for('admin_transactions') }}" class="admin-nav-link {% if request.endpoint=='admin_transactions' %}active{% endif %}">≡ Transactions</a></li>
-      <li><a href="{{ url_for('admin_plans') }}"        class="admin-nav-link {% if request.endpoint=='admin_plans' %}active{% endif %}">◆ Plans</a></li>
-      <li><a href="{{ url_for('admin_settings') }}"     class="admin-nav-link {% if request.endpoint=='admin_settings' %}active{% endif %}">⚙ Settings</a></li>
+      <li><a href="{{ url_for('admin_dashboard') }}"    class="admin-nav-link {% if request.endpoint=='admin_dashboard' %}active{% endif %}">{{ icon('grid',16) }} Overview</a></li>
+      <li><a href="{{ url_for('admin_users') }}"        class="admin-nav-link {% if request.endpoint=='admin_users' %}active{% endif %}">{{ icon('users',16) }} Users</a></li>
+      <li><a href="{{ url_for('admin_transactions') }}" class="admin-nav-link {% if request.endpoint=='admin_transactions' %}active{% endif %}">{{ icon('list',16) }} Transactions</a></li>
+      <li><a href="{{ url_for('admin_plans') }}"        class="admin-nav-link {% if request.endpoint=='admin_plans' %}active{% endif %}">{{ icon('layers',16) }} Plans</a></li>
+      <li><a href="{{ url_for('admin_settings') }}"     class="admin-nav-link {% if request.endpoint=='admin_settings' %}active{% endif %}">{{ icon('settings',16) }} Settings</a></li>
     </ul>
     <div style="padding:12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:4px;">
-      <a href="{{ url_for('dashboard') }}" class="admin-nav-link">◀ Back to App</a>
-      <a href="{{ url_for('logout') }}"    class="admin-nav-link" style="color:var(--red);opacity:.8;">⏻ Sign Out</a>
+      <a href="{{ url_for('dashboard') }}" class="admin-nav-link">{{ icon('arrow-left',16) }} Back to App</a>
+      <a href="{{ url_for('logout') }}"    class="admin-nav-link" style="color:var(--red);opacity:.8;">{{ icon('log-out',16) }} Sign Out</a>
     </div>
   </nav>
 
   <!-- Main -->
   <div class="admin-main">
     <header class="admin-topbar">
-      <button class="admin-menu-btn" id="adminMenuBtn">☰</button>
+      <button class="admin-menu-btn" id="adminMenuBtn">{{ icon('menu', 20) }}</button>
       <div class="admin-topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
       <div style="display:flex;align-items:center;gap:10px;">
         <div style="width:32px;height:32px;border-radius:50%;background:{{ user.avatar_color }};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;color:#fff;">{{ user.name[0].upper() }}</div>
@@ -50,8 +51,8 @@
       <div style="padding:0 24px;margin-top:16px;display:flex;flex-direction:column;gap:8px;">
         {% for cat, msg in messages %}
         <div class="flash flash-{{ cat }}">
-          <span>{% if cat=='success' %}✓ {% elif cat=='error' %}✗ {% else %}ℹ {% endif %}{{ msg }}</span>
-          <button onclick="this.parentElement.remove()">×</button>
+          <span style="display:flex;align-items:center;gap:8px;">{% if cat=='success' %}{{ icon('check-circle',16) }}{% elif cat=='error' %}{{ icon('x-circle',16) }}{% else %}{{ icon('info',16) }}{% endif %}{{ msg }}</span>
+          <button onclick="this.parentElement.remove()">{{ icon('x',14) }}</button>
         </div>
         {% endfor %}
       </div>

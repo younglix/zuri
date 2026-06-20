@@ -1,6 +1,7 @@
 {% extends "admin/base_admin.html" %}
 {% block title %}Plans — ZURI Admin{% endblock %}
 {% block page_title %}Mining Plans{% endblock %}
+{% from '_icons.html' import icon %}
 {% block content %}
 
 <div class="admin-page-title">Mining Plan Configuration</div>
@@ -17,9 +18,9 @@
         <tr>
           <td class="mono text-muted">#0{{ p.id }}</td>
           <td>
-            <div style="display:flex;align-items:center;gap:8px;font-weight:700;">
-              {{ '🌱' if p.id==1 else '📈' if p.id==2 else '⚡' if p.id==3 else '💎' if p.id==4 else '👑' }}
-              {{ p.name }}
+            <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:var(--blue-l);">
+              {{ icon('circle' if p.id==1 else 'trending-up' if p.id==2 else 'zap' if p.id==3 else 'star' if p.id==4 else 'award', 16) }}
+              <span style="color:var(--text);">{{ p.name }}</span>
             </div>
           </td>
           <td class="mono">${{ "%.2f"|format(p.cost) }}</td>
@@ -39,7 +40,7 @@
     </table>
   </div>
   <div class="admin-note">
-    <span>ℹ️</span>
+    {{ icon('info',15) }}
     Plan parameters are defined in <code>PLANS_DATA</code> inside <code>app.py</code>. Restart the server after editing.
   </div>
 </div>
@@ -53,7 +54,7 @@
     {% for p in plans %}
     <div class="plan-admin-card">
       <div class="pac-top">
-        <span class="pac-icon">{{ '🌱' if p.id==1 else '📈' if p.id==2 else '⚡' if p.id==3 else '💎' if p.id==4 else '👑' }}</span>
+        <span class="pac-icon" style="display:inline-flex;color:var(--blue-l);">{{ icon('circle' if p.id==1 else 'trending-up' if p.id==2 else 'zap' if p.id==3 else 'star' if p.id==4 else 'award', 18) }}</span>
         <span class="pac-name">{{ p.name }}</span>
         <span class="pac-roi">{{ p.roi }}%</span>
       </div>
