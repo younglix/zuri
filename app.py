@@ -184,12 +184,21 @@ def set_setting(key, value):
     db.session.commit()
 
 def get_settings_dict():
+    def safe_float(value, default=0.0):
+        try:
+            return float(value)
+        except Exception:
+            return default
+
     return {
         'maintenance_mode':        get_setting('maintenance_mode',   'false') == 'true',
         'allow_new_registrations': get_setting('allow_registrations', 'true') == 'true',
-        'min_deposit':             float(get_setting('min_deposit',  '1.0')),
-        'min_withdraw':            float(get_setting('min_withdraw',  '0.0001')),
+        'min_deposit':             safe_float(get_setting('min_deposit',  '1.0'), 1.0),
+        'min_withdraw':            safe_float(get_setting('min_withdraw',  '0.0001'), 0.0001),
         'announce_msg':            get_setting('announce_msg', ''),
+        'promo_enabled':           get_setting('promo_enabled', 'false') == 'true',
+        'promo_code':              get_setting('promo_code', '').upper(),
+        'promo_bonus':             safe_float(get_setting('promo_bonus', '0.0'), 0.0),
     }
 
 # ═══════════════════════════════════════════════════════════════
@@ -463,6 +472,7 @@ def signup():
         email         = sanitize(request.form.get('email', ''),         180).lower()
         phone_country = sanitize(request.form.get('phone_country', '+1'), 10)
         phone         = sanitize(request.form.get('phone', ''),          30)
+        promo_code    = sanitize(request.form.get('promo_code', ''),       50).upper().replace(' ', '')
         pw            = request.form.get('password', '')
         confirm       = request.form.get('confirm', '')
 
@@ -495,12 +505,34 @@ def signup():
         db.session.commit()
         ensure_wallets(u.id)
 
+        welcome_message = f'Welcome to ZURI, {name}! 🚀'
+        if get_setting('promo_enabled', 'false') == 'true':
+            active_code = get_setting('promo_code', '').upper().replace(' ', '')
+            try:
+                bonus_amount = float(get_setting('promo_bonus', '0.0') or 0.0)
+            except Exception:
+                bonus_amount = 0.0
+
+            if promo_code and active_code and promo_code == active_code and bonus_amount > 0:
+                wallet = get_wallet_or_create(u.id, 'USDT')
+                wallet.balance = round(wallet.balance + bonus_amount, 8)
+                add_txn(
+                    u.id,
+                    'Signup Bonus',
+                    bonus_amount,
+                    currency='USDT',
+                    status='Completed',
+                    usd_value=bonus_amount,
+                    note=f'Promotion code {promo_code} applied — {bonus_amount} USDT bonus',
+                )
+                welcome_message += f' Promo code applied: {bonus_amount} USDT bonus credited.'
+
         session.permanent   = True
         session['user_id']  = u.id
         session['user_name']  = u.name
         session['user_email'] = u.email
         session['is_admin']   = False
-        flash(f'Welcome to ZURI, {name}! 🚀', 'success')
+        flash(welcome_message, 'success')
         return redirect(url_for('dashboard'))
 
     return render_template('auth/signup.html')
@@ -1050,6 +1082,10 @@ def admin_settings():
                     'true' if 'allow_registrations' in request.form else 'false')
         set_setting('min_deposit',  request.form.get('min_deposit',  '1.0'))
         set_setting('min_withdraw', request.form.get('min_withdraw', '0.0001'))
+        set_setting('promo_enabled',
+                    'true' if 'promo_enabled' in request.form else 'false')
+        set_setting('promo_code', sanitize(request.form.get('promo_code', ''), 50).upper().replace(' ', ''))
+        set_setting('promo_bonus', request.form.get('promo_bonus', '0.0') or '0.0')
         set_setting('announce_msg', sanitize(request.form.get('announce_msg', ''), 300))
         flash('Settings saved.', 'success')
         return redirect(url_for('admin_settings'))
@@ -1077,20 +1113,24 @@ def server_error(e):
     return render_template('errors/500.html'), 500
 
 # ═══════════════════════════════════════════════════════════════
+#  SCHEDULER INITIALIZATION (runs on import, not just on __main__)
+# ═══════════════════════════════════════════════════════════════
+
+with app.app_context():
+    init_db()
+
+# Start the mining engine scheduler (must be outside __main__ for Passenger WSGI)
+scheduler = BackgroundScheduler(daemon=True)
+scheduler.add_job(
+    func=run_mining_engine,
+    trigger='interval',
+    seconds=60,
+    id='mining_engine',
+    replace_existing=True,
+)
+scheduler.start()
+atexit.register(lambda: scheduler.shutdown(wait=False))
+
+# ═══════════════════════════════════════════════════════════════
 if __name__ == '__main__':
-    with app.app_context():
-        init_db()
-
-    # Start the mining engine scheduler
-    scheduler = BackgroundScheduler(daemon=True)
-    scheduler.add_job(
-        func=run_mining_engine,
-        trigger='interval',
-        seconds=60,
-        id='mining_engine',
-        replace_existing=True,
-    )
-    scheduler.start()
-    atexit.register(lambda: scheduler.shutdown(wait=False))
-
     app.run(debug=False, host='0.0.0.0', port=5000)

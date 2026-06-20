@@ -224,6 +224,11 @@
     </div>
 
     <div class="field-group">
+      <label class="field-label">Promotional Code (optional)</label>
+      <input type="text" name="promo_code" class="field-input" placeholder="Enter promo code if you have one" autocomplete="off" value="{{ request.form.promo_code if request.form else '' }}">
+    </div>
+
+    <div class="field-group">
       <label class="field-label">Password</label>
       <div class="field-wrap">
         <input type="password" name="password" id="pwField" class="field-input" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password" oninput="checkStrength(this.value)">

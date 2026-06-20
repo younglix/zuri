@@ -60,6 +60,36 @@
         </div>
       </div>
 
+      <!-- Promotion program -->
+      <div class="settings-section">
+        <h3 class="settings-section-title">🎁 Promotion Program</h3>
+        <p class="settings-section-sub">Enable a promo code and reward new users with a USDT signup bonus.</p>
+
+        <div class="settings-row">
+          <div class="settings-row-info">
+            <div class="settings-row-title">Promotion Active</div>
+            <div class="settings-row-sub">When ON, new signups can enter the promo code to claim the bonus.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" name="promo_enabled" {% if settings.promo_enabled %}checked{% endif %}>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="settings-field-row">
+          <div class="settings-field-group">
+            <label class="field-label">Promo Code</label>
+            <input type="text" name="promo_code" class="field-input" value="{{ settings.promo_code }}" placeholder="e.g. WELCOME100" autocomplete="off">
+            <span class="field-hint">Case-insensitive. Users enter this during signup.</span>
+          </div>
+          <div class="settings-field-group">
+            <label class="field-label">Signup Bonus (USDT)</label>
+            <input type="number" name="promo_bonus" class="field-input" value="{{ settings.promo_bonus }}" min="0" step="any">
+            <span class="field-hint">The amount credited when the code is used.</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Announcement -->
       <div class="settings-section">
         <h3 class="settings-section-title">📢 Platform Announcement</h3>
@@ -85,6 +115,18 @@
         <div class="status-item">
           <span class="status-item-label">Registrations</span>
           <span class="status-pill {{ 'pill-green' if settings.allow_new_registrations else 'pill-red' }}">{{ 'OPEN' if settings.allow_new_registrations else 'CLOSED' }}</span>
+        </div>
+        <div class="status-item">
+          <span class="status-item-label">Promo Program</span>
+          <span class="status-pill {{ 'pill-green' if settings.promo_enabled else 'pill-red' }}">{{ 'ACTIVE' if settings.promo_enabled else 'OFF' }}</span>
+        </div>
+        <div class="status-item">
+          <span class="status-item-label">Promo Code</span>
+          <span class="status-pill pill-blue">{{ settings.promo_code if settings.promo_code else '—' }}</span>
+        </div>
+        <div class="status-item">
+          <span class="status-item-label">Signup Bonus</span>
+          <span class="status-pill pill-blue">{{ settings.promo_bonus }}</span>
         </div>
         <div class="status-item">
           <span class="status-item-label">Min Deposit</span>
