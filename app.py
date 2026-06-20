@@ -14,10 +14,19 @@ from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 #  APP SETUP
 # ═══════════════════════════════════════════════════════════════
 
+def _resolve_db_uri():
+    uri = os.environ.get('DATABASE_URL', 'postgresql://postgres:Isaac224488@localhost:5432/zuricrypto')
+    # Railway (and Heroku-style providers) hand out "postgres://" which SQLAlchemy 1.4+/2.x rejects
+    if uri.startswith('postgres://'):
+        uri = uri.replace('postgres://', 'postgresql://', 1)
+    return uri
+
 app = Flask(__name__)
 app.config.update(
-    SECRET_KEY                 = secrets.token_hex(32),
-    SQLALCHEMY_DATABASE_URI    = 'postgresql://postgres:Isaac224488@localhost:5432/zuricrypto',
+    # Fixed key in production so sessions/CSRF survive restarts and work across workers;
+    # falls back to a random key only when SECRET_KEY isn't set (local dev).
+    SECRET_KEY                 = os.environ.get('SECRET_KEY', secrets.token_hex(32)),
+    SQLALCHEMY_DATABASE_URI    = _resolve_db_uri(),
     SQLALCHEMY_TRACK_MODIFICATIONS = False,
     SESSION_COOKIE_HTTPONLY    = True,
     SESSION_COOKIE_SAMESITE    = 'Lax',
@@ -1133,4 +1142,4 @@ atexit.register(lambda: scheduler.shutdown(wait=False))
 
 # ═══════════════════════════════════════════════════════════════
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))

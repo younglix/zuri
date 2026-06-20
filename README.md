@@ -24,6 +24,13 @@ Open http://localhost:5000
 - Password: admin1234
 - URL: http://localhost:5000/admin
 
+## Deploying to Railway
+1. Push this repo to GitHub and create a new Railway project from it.
+2. Attach a PostgreSQL plugin — Railway injects `DATABASE_URL` into the web service automatically.
+3. In the web service's Variables tab, set `SECRET_KEY` to a fixed random value (`python -c "import secrets; print(secrets.token_hex(32))"`). Without this, sessions and CSRF tokens reset on every redeploy.
+4. Railway detects the `Procfile` and runs `gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4`. Keep it at 1 worker — the mining engine scheduler runs in-process, and multiple workers would tick it multiple times in parallel.
+5. Existing tables/data are untouched — `db.create_all()` only creates tables that don't already exist.
+
 ## Features
 - Landing page (Spaceship-style UI)
 - Auth: Sign up, Login, Forgot/Reset password
