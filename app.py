@@ -172,6 +172,11 @@ PLANS_DATA = [
     {'id': 999, 'name': 'TEST-ENGINE', 'cost': 100000000, 'return': 200000000, 'days': 1, 'roi': 100},
 ]
 
+# TEMP: overrides ticks_total for specific plan ids so they complete on a real-time
+# schedule independent of the days*2 fast-test formula used by every other plan.
+# Remove together with the TEST-ENGINE entry above.
+TEST_PLAN_TICKS = {999: 5}   # TEST-ENGINE: 5 ticks @ 60s = ~5 min, 20% per tick
+
 SUPPORTED_COINS = list(CRYPTO_META.keys())
 
 # ═══════════════════════════════════════════════════════════════
@@ -411,7 +416,7 @@ def run_mining_engine():
             for plan in plans:
 
                 # Total ticks for full duration (1 tick = 60 seconds)
-                ticks_total = plan.days * 2  # FAST TEST MODE
+                ticks_total = TEST_PLAN_TICKS.get(plan.plan_id, plan.days * 2)  # FAST TEST MODE
                 increment = round(100.0 / ticks_total, 6)
 
                 plan.progress = min(100.0, round(plan.progress + increment, 4))
