@@ -10,8 +10,17 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
   {% from '_icons.html' import icon %}
+  <script>
+    (function(){
+      try {
+        const saved = localStorage.getItem('zuri-theme');
+        document.documentElement.dataset.theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (_) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
 </head>
 <body class="auth-body">
+  <button type="button" class="theme-toggle auth-theme-toggle" id="themeToggle" aria-label="Switch to dark theme" title="Switch theme"></button>
   <div class="auth-stars" id="authStars"></div>
   <div class="auth-blob blob-1"></div>
   <div class="auth-blob blob-2"></div>
@@ -74,6 +83,25 @@
         s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${(Math.random()*3+2).toFixed(1)}s;--dl:${(Math.random()*4).toFixed(1)}s;opacity:${(Math.random()*.5+.1).toFixed(2)}`;
         c.appendChild(s);
       }
+    })();
+    (function(){
+      const button=document.getElementById('themeToggle');
+      const icons={
+        light:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>',
+        dark:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.9 13A8.5 8.5 0 0 1 11 3.1 8.5 8.5 0 1 0 20.9 13Z"/></svg>'
+      };
+      function render(){
+        const dark=document.documentElement.dataset.theme==='dark';
+        button.innerHTML=dark?icons.light:icons.dark;
+        button.setAttribute('aria-label',dark?'Switch to light theme':'Switch to dark theme');
+      }
+      render();
+      button.addEventListener('click',function(){
+        const theme=document.documentElement.dataset.theme==='dark'?'light':'dark';
+        document.documentElement.dataset.theme=theme;
+        try{localStorage.setItem('zuri-theme',theme);}catch(_){}
+        render();
+      });
     })();
     var ICON_ATTRS = 'width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
     var EYE_ICON     = '<svg ' + ICON_ATTRS + '><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';

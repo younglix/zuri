@@ -9,6 +9,14 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   {% from '_icons.html' import icon %}
+  <script>
+    (function(){
+      try {
+        const saved = localStorage.getItem('zuri-theme');
+        document.documentElement.dataset.theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (_) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
 </head>
 <body style="padding:0;padding-bottom:0;padding-top:0;">
 
@@ -41,6 +49,7 @@
       <button class="admin-menu-btn" id="adminMenuBtn">{{ icon('menu', 20) }}</button>
       <div class="admin-topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
       <div style="display:flex;align-items:center;gap:10px;">
+        <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch to dark theme" title="Switch theme"></button>
         <div style="width:32px;height:32px;border-radius:50%;background:{{ user.avatar_color }};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;color:#fff;">{{ user.name[0].upper() }}</div>
         <span style="font-size:.83rem;color:var(--text-2);display:none;" class="show-sm">{{ user.name }}</span>
       </div>

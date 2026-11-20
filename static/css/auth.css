@@ -241,3 +241,30 @@ body.auth-body {
 
 .auth-flashes { width: 100%; max-width: 400px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
 .mobile-brand-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; margin-bottom: 24px; }
+
+/* Auth surfaces share the app's light and dark appearance. */
+:root { --auth-bg:#f3f5f7; --auth-panel:#fff; --auth-ink:#17212f; --auth-muted:#5f6c7b; --auth-line:#e1e6ec; --auth-accent:#1769e0; }
+:root[data-theme="dark"] { --auth-bg:#0d1117; --auth-panel:#141a22; --auth-ink:#edf2f7; --auth-muted:#a6b1bf; --auth-line:#293340; --auth-accent:#6ca4ff; }
+body.auth-body { background:var(--auth-bg); color:var(--auth-ink); transition:background-color .2s,color .2s; }
+.auth-brand { background:var(--auth-panel); border-color:var(--auth-line); }
+.auth-brand::before,.auth-brand::after,.auth-stars,.auth-blob { display:none; }
+.auth-form-panel { background:var(--auth-bg); }
+.auth-card { background:var(--auth-panel); border-color:var(--auth-line); box-shadow:0 16px 42px rgba(23,33,47,.08); backdrop-filter:none; }
+.auth-title { color:var(--auth-ink); }
+.auth-sub { color:var(--auth-muted); }
+.brand-name,.brand-headline { color:var(--auth-ink); }
+.brand-grad { background:none; -webkit-text-fill-color:initial; color:var(--auth-accent); }
+.bstat-num { background:none; -webkit-text-fill-color:initial; color:var(--auth-accent); }
+.brand-sub,.brand-features,.bstat-label,.auth-footer-text,.demo-hint { color:var(--auth-muted); }
+.brand-icon,.auth-btn { background:var(--auth-accent); box-shadow:none; }
+.feat-icon,.bstat-num,.auth-link,.field-link { color:var(--auth-accent); }
+.auth-link:hover { color:var(--auth-ink); }
+.auth-body .field-input,.phone-country-select { background:var(--auth-panel); color:var(--auth-ink); border-color:var(--auth-line); }
+.auth-body .field-label { color:var(--auth-ink); }
+.phone-country-select:focus { border-color:var(--auth-accent); box-shadow:0 0 0 3px color-mix(in srgb,var(--auth-accent) 16%,transparent); }
+.auth-icon-circle,.feat-icon { background:color-mix(in srgb,var(--auth-accent) 9%,var(--auth-panel)); border-color:color-mix(in srgb,var(--auth-accent) 18%,var(--auth-line)); }
+.auth-divider { color:var(--auth-muted); }
+.auth-divider::before,.auth-divider::after { background:var(--auth-line); }
+.demo-hint { background:color-mix(in srgb,var(--auth-accent) 6%,var(--auth-panel)); border-color:var(--auth-line); }
+.auth-theme-toggle { position:fixed; z-index:20; top:18px; right:18px; }
+@media (max-width:767px) { .auth-theme-toggle { top:12px; right:12px; } }

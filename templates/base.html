@@ -10,6 +10,14 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   {% from '_icons.html' import icon %}
   {% block extra_css %}{% endblock %}
+  <script>
+    (function(){
+      try {
+        const saved = localStorage.getItem('zuri-theme');
+        document.documentElement.dataset.theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (_) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
 </head>
 <body>
 
@@ -20,6 +28,7 @@
     <span class="topbar-logo-name">ZURI</span>
   </a>
   <div class="topbar-right">
+    <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch to dark theme" title="Switch theme"></button>
     {% if user %}
     <a href="{{ url_for('dashboard') }}" class="topbar-wallet-pill">
       <span class="topbar-wallet-dot"></span>
