@@ -1,11 +1,11 @@
 {% extends "auth/base_auth.html" %}
-{% block title %}Sign In — ZURI{% endblock %}
+{% block title %}Sign In — {{ brand_name }}{% endblock %}
 {% from '_icons.html' import icon %}
 {% block form %}
 <div class="auth-card">
   <div class="auth-card-header">
     <h1 class="auth-title">Welcome back</h1>
-    <p class="auth-sub">Sign in to your ZURI wallet</p>
+    <p class="auth-sub">Sign in to your {{ brand_name }} wallet</p>
   </div>
   <form method="POST" class="auth-form">
     <input type="hidden" name="_csrf" value="{{ csrf_token() }}">

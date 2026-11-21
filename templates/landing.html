@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>ZURI — Invest in the future of money</title>
+  <title>{{ brand_name }} — Invest in the future of money</title>
 
 
 
@@ -13,7 +13,8 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   {% from '_icons.html' import icon %}
   <style>
-    body{background:#020204;font-family:'Plus Jakarta Sans',sans-serif;color:#f1f5f9;overflow-x:hidden;}
+    html{font-size:clamp(15px,calc(14px + .15vw),17px);}
+    body{background:#020204;font-family:'Plus Jakarta Sans',sans-serif;color:#f1f5f9;overflow-x:hidden;line-height:1.5;}
     .grad{background:linear-gradient(135deg,#818cf8,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
     .grad-warm{background:linear-gradient(135deg,#f1f5f9,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
     .glass{background:rgba(17,17,28,.55);border:1px solid rgba(99,102,241,.14);backdrop-filter:blur(18px);}
@@ -84,8 +85,8 @@
 <nav class="nav-blur fixed top-0 inset-x-0 z-50 border-b border-white/5">
   <div class="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
     <a href="/" class="flex items-center gap-2.5">
-      <div class="w-8 h-8 rounded-lg btn-p flex items-center justify-center text-white shadow-lg">{{ icon('hexagon', 16) }}</div>
-      <span class="text-xl font-extrabold tracking-tight">ZURI</span>
+      <div class="w-8 h-8 rounded-lg btn-p flex items-center justify-center text-white shadow-lg" style="overflow:hidden;">{% if brand_logo %}<img src="{{ brand_logo }}" alt="" style="width:100%;height:100%;object-fit:contain;" onerror="this.remove()">{% else %}{{ icon('hexagon', 16) }}{% endif %}</div>
+      <span class="text-xl font-extrabold tracking-tight">{{ brand_name }}</span>
     </a>
     <div class="hidden md:flex items-center gap-7 text-sm text-slate-400">
       <a href="#features" class="hover:text-white transition-colors">Features</a>
@@ -247,7 +248,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-10 relative">
       <div class="hidden md:block absolute top-9 left-[33%] right-[33%] h-px bg-gradient-to-r from-indigo-400/20 via-violet-400/30 to-indigo-400/20"></div>
       {% for num, ic, title, desc, code in [
-        ('1','arrow-down-circle','Deposit crypto','Choose your coin, enter an amount, confirm. Your ZURI balance updates instantly — no minimums, no delays.','+ 0.5 ETH deposited'),
+        ('1','arrow-down-circle','Deposit crypto','Choose your coin, enter an amount, confirm. Your {{ brand_name }} balance updates instantly — no minimums, no delays.','+ 0.5 ETH deposited'),
         ('2','layers','Pick a mining plan','Select from 5 tiers starting at $100. Your crypto is put to work immediately and earns guaranteed returns.','Plan: Elite · $2,000 invested'),
         ('3','arrow-up-circle','Withdraw any time','Send your balance back as crypto to any external wallet address. Enter address, select network, done.','"To: 0x4f3a…" · Processing'),
       ] %}
@@ -323,7 +324,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
       {% for name, loc, text, color in [
         ('Maria S.','Manila, PH','I deposited ETH on Monday, activated the Advanced plan, and had $1,200 back by Friday. The dashboard is genuinely beautiful.','rgba(99,102,241,.3)'),
-        ('Jay A.','Cebu City, PH','Tried three crypto apps this year. ZURI is the only one that doesn\'t feel like homework. The swap feature is blazing fast.','rgba(34,211,238,.3)'),
+        ('Jay A.','Cebu City, PH','Tried three crypto apps this year. {{ brand_name }} is the only one that doesn\'t feel like homework. The swap feature is blazing fast.','rgba(34,211,238,.3)'),
         ('Rose T.','Davao, PH','Started with Starter plan just to test it. Two weeks later I\'m running the Elite plan. The interface is the best I\'ve seen.','rgba(167,139,250,.3)'),
       ] %}
       <div class="glass rounded-2xl p-6 card-lift reveal" style="transition-delay:{{ loop.index0 * 0.1 }}s">
@@ -353,9 +354,9 @@
       {% for q, a in [
         ('How does depositing crypto work?','Select your coin, enter an amount, and confirm. A unique wallet address with a QR code appears. In simulation mode no real crypto is transferred — balance updates instantly for demonstration.'),
         ('What are mining plans and how do I earn?','Mining plans lock a USD-equivalent amount of your crypto and return it multiplied after a fixed number of days. Plan 3 (Advanced) returns $1,200 on a $500 investment in 10 days — 140% ROI.'),
-        ('Can I swap between cryptocurrencies?','Yes. ZURI supports instant swaps between all 10 supported coins at live market rates with a 0.1% fee. The converted balance appears in your wallet immediately.'),
+        ('Can I swap between cryptocurrencies?','Yes. {{ brand_name }} supports instant swaps between all 10 supported coins at live market rates with a 0.1% fee. The converted balance appears in your wallet immediately.'),
         ('How do I withdraw?','Enter the destination wallet address, select the network, and confirm. No bank account needed — withdrawals go to any external crypto wallet. Status shows as Processing.'),
-        ('Is ZURI secure?','Yes. ZURI uses PBKDF2 password hashing, CSRF tokens on every form, HTTP security headers, Content Security Policy, session hardening, and SQL injection prevention via parameterized queries.'),
+        ('Is {{ brand_name }} secure?','Yes. {{ brand_name }} uses PBKDF2 password hashing, CSRF tokens on every form, HTTP security headers, Content Security Policy, session hardening, and SQL injection prevention via parameterized queries.'),
         ('Is there a minimum deposit or any fees?','No minimum deposit and no account fees. The only fee is a 0.1% swap fee when converting between coins.'),
       ] %}
       <div class="glass rounded-xl overflow-hidden reveal">
@@ -379,7 +380,7 @@
     <div class="glass-hi rounded-3xl p-12 md:p-16" style="box-shadow:0 40px 100px rgba(0,0,0,.5),0 0 80px rgba(99,102,241,.1)">
       <div class="mb-5 flex justify-center text-indigo-300 animate-float">{{ icon('hexagon', 48) }}</div>
       <h2 class="text-4xl md:text-5xl font-black mb-4">Your wealth.<br/><span class="grad">Launched.</span></h2>
-      <p class="text-slate-400 text-lg max-w-md mx-auto mb-10">Join thousands who trust ZURI to grow their crypto portfolio — simply, securely, beautifully.</p>
+      <p class="text-slate-400 text-lg max-w-md mx-auto mb-10">Join thousands who trust {{ brand_name }} to grow their crypto portfolio — simply, securely, beautifully.</p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <a href="/signup" class="btn-p text-white text-base font-bold px-10 py-4 rounded-xl">Create free account →</a>
         <a href="/login"  class="btn-o text-slate-200 text-base font-semibold px-10 py-4 rounded-xl">Sign in</a>
@@ -395,8 +396,8 @@
     <div class="grid grid-cols-2 md:grid-cols-5 gap-8 mb-10">
       <div class="col-span-2 md:col-span-1">
         <div class="flex items-center gap-2 mb-3">
-          <div class="w-7 h-7 rounded-lg btn-p flex items-center justify-center text-white">{{ icon('hexagon', 14) }}</div>
-          <span class="text-lg font-extrabold">ZURI</span>
+          <div class="w-7 h-7 rounded-lg btn-p flex items-center justify-center text-white" style="overflow:hidden;">{% if brand_logo %}<img src="{{ brand_logo }}" alt="" style="width:100%;height:100%;object-fit:contain;" onerror="this.remove()">{% else %}{{ icon('hexagon', 14) }}{% endif %}</div>
+          <span class="text-lg font-extrabold">{{ brand_name }}</span>
         </div>
         <p class="text-xs text-slate-500 leading-relaxed mb-3">Next-generation crypto investment wallet. Beautifully simple. Simulation only.</p>
       </div>
@@ -417,7 +418,7 @@
       {% endfor %}
     </div>
     <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-      <p class="text-xs text-slate-600">© 2025 ZURI Inc. Simulation only — not a real financial product.</p>
+      <p class="text-xs text-slate-600">© 2025 {{ brand_name }} Inc. Simulation only — not a real financial product.</p>
       <div class="flex gap-6 text-xs text-slate-600">
         <a href="#" class="hover:text-slate-300">Privacy</a>
         <a href="#" class="hover:text-slate-300">Terms</a>

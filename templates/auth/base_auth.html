@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-  <title>{% block title %}ZURI Auth{% endblock %}</title>
+  <title>{% block title %}{{ brand_name }} Auth{% endblock %}</title>
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -30,8 +30,8 @@
     <div class="auth-brand hidden-mobile">
       <div class="brand-content">
         <a href="{{ url_for('landing') }}" class="brand-logo">
-          <div class="brand-icon">{{ icon('hexagon', 20) }}</div>
-          <span class="brand-name">ZURI</span>
+          <div class="brand-icon">{% if brand_logo %}<img src="{{ brand_logo }}" alt="" onerror="this.remove()">{% else %}{{ icon('hexagon', 20) }}{% endif %}</div>
+          <span class="brand-name">{{ brand_name }}</span>
         </a>
         <h2 class="brand-headline">Invest in the<br/><span class="brand-grad">future of money.</span></h2>
         <p class="brand-sub">Deposit crypto, activate mining plans, and grow your wealth from one beautifully simple dashboard.</p>
@@ -52,8 +52,8 @@
     <!-- Form panel -->
     <div class="auth-form-panel">
       <a href="{{ url_for('landing') }}" class="mobile-brand-logo">
-        <div class="brand-icon" style="width:32px;height:32px;font-size:1rem;">{{ icon('hexagon', 16) }}</div>
-        <span class="brand-name" style="font-size:1.1rem;">ZURI</span>
+        <div class="brand-icon" style="width:32px;height:32px;font-size:1rem;">{% if brand_logo %}<img src="{{ brand_logo }}" alt="" onerror="this.remove()">{% else %}{{ icon('hexagon', 16) }}{% endif %}</div>
+        <span class="brand-name" style="font-size:1.1rem;">{{ brand_name }}</span>
       </a>
 
       {% with messages = get_flashed_messages(with_categories=true) %}

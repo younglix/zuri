@@ -1,6 +1,7 @@
 import os, uuid, secrets, hashlib, hmac, re, json
 from datetime import datetime, timedelta
 from functools import wraps
+from urllib.parse import urlparse
 from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
 
@@ -211,6 +212,25 @@ def get_settings_dict():
         'promo_code':              get_setting('promo_code', '').upper(),
         'promo_bonus':             safe_float(get_setting('promo_bonus', '0.0'), 0.0),
     }
+
+
+@app.context_processor
+def inject_site_branding():
+    return {
+        'brand_name': get_setting('site_name', 'ZURI') or 'ZURI',
+        'brand_logo': get_setting('site_logo', ''),
+    }
+
+
+def is_valid_brand_logo_url(value):
+    if not value:
+        return True
+    if len(value) > 500 or any(char.isspace() or ord(char) < 32 for char in value) or '\\' in value:
+        return False
+    if value.startswith('/'):
+        return not value.startswith('//')
+    parsed = urlparse(value)
+    return parsed.scheme == 'https' and bool(parsed.netloc) and not parsed.username and not parsed.password
 
 # ═══════════════════════════════════════════════════════════════
 #  SECURITY HELPERS
@@ -1089,6 +1109,32 @@ def admin_settings():
     u = User.query.get(session['user_id'])
     if request.method == 'POST':
         validate_csrf()
+        if request.form.get('form_type') == 'branding':
+            if request.form.get('reset_brand') == '1':
+                set_setting('site_name', 'ZURI')
+                set_setting('site_logo', '')
+                flash('Branding reset to the default.', 'success')
+            elif request.form.get('clear_logo') == '1':
+                name = ' '.join(sanitize(request.form.get('site_name', ''), 50).split())
+                if not name:
+                    flash('Enter a site name before saving.', 'error')
+                else:
+                    set_setting('site_name', name)
+                    set_setting('site_logo', '')
+                    flash('Logo removed.', 'success')
+            else:
+                name = ' '.join(sanitize(request.form.get('site_name', ''), 50).split())
+                logo = request.form.get('site_logo', '').strip()
+                if not name:
+                    flash('Enter a site name before saving.', 'error')
+                elif not is_valid_brand_logo_url(logo):
+                    flash('Use an HTTPS image URL or a path on this site for the logo.', 'error')
+                else:
+                    set_setting('site_name', name)
+                    set_setting('site_logo', logo)
+                    flash('Site name and logo saved.', 'success')
+            return redirect(url_for('admin_settings'))
+
         set_setting('maintenance_mode',
                     'true' if 'maintenance_mode' in request.form else 'false')
         set_setting('allow_registrations',
@@ -1103,7 +1149,11 @@ def admin_settings():
         flash('Settings saved.', 'success')
         return redirect(url_for('admin_settings'))
     settings = get_settings_dict()
-    return render_template('admin/settings.html', user=u, settings=settings)
+    return render_template(
+        'admin/settings.html', user=u, settings=settings,
+        brand_name=get_setting('site_name', 'ZURI') or 'ZURI',
+        brand_logo=get_setting('site_logo', ''),
+    )
 
 # ═══════════════════════════════════════════════════════════════
 #  ERROR HANDLERS

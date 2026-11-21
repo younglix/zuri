@@ -46,7 +46,7 @@ body.auth-body {
 }
 
 .hidden-mobile { display: none; }
-@media(min-width:768px) { .hidden-mobile { display: flex; } }
+@media(min-width:960px) { .hidden-mobile { display: flex; } }
 
 .brand-content { position: relative; z-index: 1; max-width: 420px; }
 
@@ -127,6 +127,11 @@ body.auth-body {
     flex-shrink: 0;
     border-left: 1px solid rgba(99,102,241,.08);
   }
+}
+@media(min-width:1440px) {
+  .auth-form-panel { width:520px; }
+  .auth-brand { padding:clamp(48px,5vw,88px); }
+  .brand-content { max-width:480px; }
 }
 
 /* Starfield */

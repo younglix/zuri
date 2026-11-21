@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Maintenance — ZURI</title>
+  <title>Maintenance — {{ brand_name }}</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
   {% from '_icons.html' import icon %}
   <style>
+    html{font-size:clamp(15px,calc(14px + .15vw),17px);}
     *{box-sizing:border-box;margin:0;padding:0}
     body{background:#020204;font-family:'Plus Jakarta Sans',sans-serif;color:#f1f5f9;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;
       background-image:linear-gradient(rgba(99,102,241,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,.04) 1px,transparent 1px);background-size:60px 60px;}
@@ -24,7 +25,7 @@
   <div class="card">
     <div class="icon">{{ icon('settings', 56) }}</div>
     <h1>Under Maintenance</h1>
-    <p>ZURI is undergoing scheduled maintenance. We'll be back shortly. Thank you for your patience.</p>
+    <p>{{ brand_name }} is undergoing scheduled maintenance. We'll be back shortly. Thank you for your patience.</p>
     <div class="badge">MAINTENANCE MODE ACTIVE</div>
     <br/>
     <a href="/login">Admin? Sign in →</a>

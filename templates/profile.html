@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Profile — ZURI{% endblock %}
+{% block title %}Profile — {{ brand_name }}{% endblock %}
 {% from '_icons.html' import icon %}
 {% block content %}
 <!-- Profile header card -->
@@ -22,7 +22,7 @@
 </div>
 
 <!-- Portfolio summary -->
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;">
+<div class="profile-stats-grid" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:20px;">
   <div class="card" style="padding:14px;text-align:center;">
     <div style="font-size:1.1rem;font-weight:900;background:linear-gradient(135deg,#6366f1,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${{ "%.2f"|format(user.total_usd_balance) }}</div>
     <div style="font-size:.65rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;">Balance</div>

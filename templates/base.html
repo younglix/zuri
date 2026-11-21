@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-  <title>{% block title %}ZURI{% endblock %}</title>
+  <title>{% block title %}{{ brand_name }}{% endblock %}</title>
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -24,9 +24,16 @@
 <!-- ── Top Bar ── -->
 <header class="topbar">
   <a href="{{ url_for('dashboard') }}" class="topbar-logo">
-    <div class="topbar-logo-icon">{{ icon('hexagon', 18) }}</div>
-    <span class="topbar-logo-name">ZURI</span>
+    <div class="topbar-logo-icon">{% if brand_logo %}<img src="{{ brand_logo }}" alt="" onerror="this.remove()">{% else %}{{ icon('hexagon', 18) }}{% endif %}</div>
+    <span class="topbar-logo-name">{{ brand_name }}</span>
   </a>
+  <nav class="topbar-nav" aria-label="Main navigation">
+    <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint=='dashboard' %}active{% endif %}">{{ icon('home',15) }} Overview</a>
+    <a href="{{ url_for('swap') }}" class="{% if request.endpoint=='swap' %}active{% endif %}">{{ icon('repeat',15) }} Swap</a>
+    <a href="{{ url_for('plans') }}" class="{% if request.endpoint=='plans' %}active{% endif %}">{{ icon('trending-up',15) }} Earn</a>
+    <a href="{{ url_for('transactions') }}" class="{% if request.endpoint=='transactions' %}active{% endif %}">{{ icon('list',15) }} Activity</a>
+    <a href="{{ url_for('profile') }}" class="{% if request.endpoint=='profile' %}active{% endif %}">{{ icon('user',15) }} Profile</a>
+  </nav>
   <div class="topbar-right">
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch to dark theme" title="Switch theme"></button>
     {% if user %}
