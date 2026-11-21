@@ -16,9 +16,12 @@ from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
 def _resolve_db_uri():
     uri = os.environ.get('DATABASE_URL', 'postgresql://postgres:Isaac224488@localhost:5432/zuricrypto')
-    # Railway (and Heroku-style providers) hand out "postgres://" which SQLAlchemy 1.4+/2.x rejects
+    # Use the installed psycopg2 driver explicitly. SQLAlchemy 2.x otherwise
+    # defaults PostgreSQL URLs to psycopg 3, which is not in requirements.txt.
     if uri.startswith('postgres://'):
-        uri = uri.replace('postgres://', 'postgresql://', 1)
+        uri = uri.replace('postgres://', 'postgresql+psycopg2://', 1)
+    elif uri.startswith('postgresql://'):
+        uri = uri.replace('postgresql://', 'postgresql+psycopg2://', 1)
     return uri
 
 app = Flask(__name__)
