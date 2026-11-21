@@ -21,9 +21,14 @@ jobs:
         with:
           node-version: 22
 
+      - name: Prepare source without Git metadata
+        run: |
+          mkdir -p "$RUNNER_TEMP/deploy-source"
+          git archive HEAD | tar -x -C "$RUNNER_TEMP/deploy-source"
+
       - name: Deploy production to Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: team_sUxDyfPWOhOu253OawTd3ShQ
           VERCEL_PROJECT_ID: prj_nFU1JRtuBRD7kYVweXveAExqPi7L
-        run: npx --yes vercel@latest deploy --prod --yes --token="$VERCEL_TOKEN"
+        run: npx --yes vercel@latest --prod --yes --token="$VERCEL_TOKEN" --cwd "$RUNNER_TEMP/deploy-source"
